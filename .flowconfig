@@ -18,6 +18,10 @@
 
 ; Ignore metro
 .*/node_modules/metro/.*
+.*/node_modules/react-native/Libraries/Components/View.*
+
+[untyped]
+.*/node_modules/react-native/.*
 
 [include]
 
