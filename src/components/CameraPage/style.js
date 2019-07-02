@@ -3,10 +3,13 @@ import { StyleSheet, } from 'react-native'
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 10,
-    backgroundColor: '#000',
+    backgroundColor: 'black',
   },
-
+  preview: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
 })
 
 export default styles
