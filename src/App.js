@@ -1,17 +1,30 @@
 // @flow
 
 import React, { Component, } from 'react'
-import { StyleSheet, Text, View, } from 'react-native'
-import Comp from 'src/components'
+import { StyleSheet, View, StatusBar, } from 'react-native'
+import { MainPage, CameraPage, } from './components'
+
 
 type Props = {}
-export default class App extends Component<Props> {
+
+type State = {
+  isCamera: boolean
+}
+
+export default class App extends Component<Props, State> {
+  state = {
+    isCamera: false,
+  }
+
+  toggleCamera = () => this.setState({ isCamera: true, })
+
   render() {
+    const { isCamera, } = this.state
+
     return (
       <View style={styles.container}>
-        <Text style={styles.welcome}>Welcome to my app</Text>
-        <Comp />
-        <Text style={styles.instructions}>To get started, edit App.js</Text>
+        <StatusBar hidden />          
+        {isCamera ? <CameraPage /> : <MainPage toggleCamera={this.toggleCamera}/>}
       </View>
     )
   }
@@ -20,18 +33,5 @@ export default class App extends Component<Props> {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
   },
 })
