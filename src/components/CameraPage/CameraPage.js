@@ -13,12 +13,12 @@ class CameraPage extends Component {
     isBackType: true,
   }
 
-  takePicture = async() => {
+  takePicture = async () => {
     if (this.camera) {
-      const options = { quality: 0.5, base64: true, }
+      const options = { quality: 0.5, base64: true, fixOrientation: true, }
       const data = await this.camera.takePictureAsync(options)
       // console.log(data)
-      this.setState({ image: data.uri, })
+      this.setState({ image: data, })
     }
   }
 
@@ -29,30 +29,40 @@ class CameraPage extends Component {
   handleCameraReady = () => {
     const { isCameraReady, } = this.state
 
-    if(this.camera.getStatus() === 'READY') {
+    if (this.camera.getStatus() === 'READY') {
       this.setState({ isCameraReady: true, })
-    } else if(isCameraReady) {
+    } else if (isCameraReady) {
       this.setState({ isCameraReady: false, })
     }
   }
-  
-  render (){ 
+
+  render() {
     const { flashMode, image, isCameraReady, isBackType, } = this.state
     const CameraConstants = RNCamera.Constants
 
-  return(
+    return (
       <View style={styles.container}>
-        { image ? <FastImage source={{ uri: image, priority: FastImage.priority.high,}} style={{ width: '100%', height: '100%', }}/> :
-          <RNCamera ref={ref => { this.camera = ref}}
+        { image ? <FastImage source={{ uri: image.uri, priority: FastImage.priority.high, }} style={{ width: '100%', height: '100%', } } /> : (
+          <RNCamera
+            ref={(ref) => { this.camera = ref }}
             style={styles.preview}
-            captureAudio={false}
+            captureAudio={false} 
             onCameraReady={this.handleCameraReady}
             flashMode={flashMode ? CameraConstants.FlashMode.on : CameraConstants.FlashMode.off}
             type={isBackType ? CameraConstants.Type.back : CameraConstants.Type.front}
-          /> 
-        }
-        <ControlBar takePicture={this.takePicture} flashMode={flashMode} toggleFlashMode={this.toggleFlashMode} isCameraReady={isCameraReady} isImage={!!image} toggleType={this.toggleCameraType}/>
+          />
+        )}
+        <ControlBar
+          takePicture={this.takePicture}
+          flashMode={flashMode}
+          toggleFlashMode={this.toggleFlashMode}
+          isCameraReady={isCameraReady}
+          isImage={!!image}
+          toggleType={this.toggleCameraType}
+        />
       </View>
-    )}}
+    )
+  }
+}
 
 export { CameraPage, }
