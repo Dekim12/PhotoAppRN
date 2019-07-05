@@ -4,3 +4,5 @@ export const ORIENTATION_TYPES = {
   landscapeR: 'LANDSCAPE-RIGHT', 
   upSideDown: 'PORTRAIT-UPSIDEDOWN',
 }
+
+export const PHOTO_MODE = { cover: 'cover', contain: 'contain', }

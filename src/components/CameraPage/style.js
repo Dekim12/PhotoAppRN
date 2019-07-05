@@ -9,11 +9,6 @@ const styles = StyleSheet.create({
     flex: 1,
     overflow: 'hidden',
   },
-  photoStyle: { 
-    width: '100%', 
-    height: '100%', 
-    borderWidth: 2,
-  },
 })
 
 export default styles

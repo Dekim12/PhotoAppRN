@@ -17,6 +17,7 @@ type Props = {
   toggleType: () => void,  
   takePicture: () => void,
   toggleFlashMode: () => void,
+  resetPhoto: () => void,
 }
 
 type State = { 
@@ -68,7 +69,8 @@ class ControlBar extends Component<Props, State> {
       toggleFlashMode, 
       isCameraReady, 
       isImage, 
-      toggleType, 
+      toggleType,
+      resetPhoto, 
     } = this.props
     const { currentCameraBtnStyle, currentContainerStyle, } = this.state
 
@@ -102,7 +104,7 @@ class ControlBar extends Component<Props, State> {
           </View>
         )}
         {isImage ? (
-          <TouchableButton style={styles.btnIcons}>
+          <TouchableButton style={styles.btnIcons} onPress={resetPhoto}>
             <Icon name='redo-alt' />
           </TouchableButton>
         ) : (

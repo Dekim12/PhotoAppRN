@@ -1,10 +1,8 @@
 import React, { Component, } from 'react'
-import { View, Dimensions, } from 'react-native'
-import FastImage from 'react-native-fast-image'
+import { View, } from 'react-native'
 import { RNCamera, } from 'react-native-camera'
 
-import { ControlBar, } from '../index'
-// import { isHorizontalOrientation, } from '../../utils'
+import { ControlBar, PreviewPhoto, } from '../index'
 import styles from './style'
 
 class CameraPage extends Component<Props, State> {
@@ -13,35 +11,14 @@ class CameraPage extends Component<Props, State> {
     image: null,
     isCameraReady: false,
     isBackType: true,
-    // isHorizontal: null,
   }
-
-  // setResizeImageMode = ({ screen, }) => {
-  //   const { width, height, } = screen
-  //   const { image, } = this.state
-
-  //   if(image) {
-  //     this.setState({ isHorizontal: width > height, })
-  //   }
-  // }
-
-  // componentDidMount = () => {
-  //   Dimensions.addEventListener('change', this.setResizeImageMode)
-  // }
-
-  // componentWillUnmount = () => {
-  //   Dimensions.addEventListener('change', this.setResizeImageMode)
-  // }
 
   takePicture = async () => {
     if (this.camera) {
       const options = { quality: 0.5, base64: true, fixOrientation: true, }
       
       const data = await this.camera.takePictureAsync(options)
-      this.setState({ 
-        image: data, 
-        // isHorizontal: isHorizontalOrientation(), 
-      })
+      this.setState({ image: data, })
     }
   }
   
@@ -59,6 +36,8 @@ class CameraPage extends Component<Props, State> {
 
   toggleCameraType = () => this.setState(prevState => ({ isBackType: !prevState.isBackType, }))
 
+  resetPhoto = () => this.setState({ image: null , })
+
   render() {
     const { flashMode, image, isCameraReady, isBackType, } = this.state
     const CameraConstants = RNCamera.Constants
@@ -66,11 +45,7 @@ class CameraPage extends Component<Props, State> {
     return (
       <View style={styles.container}>
         {image ? (
-          <FastImage
-            source={{ uri: image.uri, priority: FastImage.priority.high, }}
-            style={styles.photoStyle}
-            // resizeMode={isHorizontal ? 'contain' : 'cover'}
-          />
+          <PreviewPhoto imageData={image} />
         ) : (
           <RNCamera
             ref={(ref) => {
@@ -99,6 +74,7 @@ class CameraPage extends Component<Props, State> {
           isCameraReady={isCameraReady}
           isImage={!!image}
           toggleType={this.toggleCameraType}
+          resetPhoto={this.resetPhoto}
         />
       </View>
     )
