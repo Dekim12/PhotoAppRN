@@ -1,8 +1,20 @@
-import React from 'react'
-import Ionicons from 'react-native-vector-icons/FontAwesome5'
+// @flow
 
-const Icon = ({ name, size = 33, color = '#e6e5e6', style, }) => {
-  const IconComponent = Ionicons
+import React from 'react'
+import Icons from 'react-native-vector-icons/FontAwesome5'
+
+import type { ViewStyleProp, } from 'react-native'
+import type { FontAwesome5Glyphs, } from 'react-native-vector-icons/FontAwesome5'
+
+type Props = {
+  name: FontAwesome5Glyphs,
+  size: number,
+  color: string,
+  style: ViewStyleProp
+}
+
+const Icon = ({ name, size = 33, color = '#e6e5e6', style, }: Props) => {
+  const IconComponent = Icons
 
   return <IconComponent name={name} size={size} color={color} style={style} />
 }

@@ -2,6 +2,7 @@
 
 import React, { Component, } from 'react'
 import { StyleSheet, View, StatusBar, } from 'react-native'
+
 import { MainPage, CameraPage, } from './components'
 
 

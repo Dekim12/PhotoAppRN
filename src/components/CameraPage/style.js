@@ -7,8 +7,11 @@ const styles = StyleSheet.create({
   },
   preview: {
     flex: 1,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  photoStyle: { 
+    width: '100%', 
+    height: '100%', 
   },
 })
 

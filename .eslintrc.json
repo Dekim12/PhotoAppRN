@@ -17,7 +17,6 @@
     "jest",
     "flowtype"
   ],
-  "parser": "babel-eslint",
   "parserOptions": {
     "ecmaFeatures": {
       "jsx": true
@@ -35,10 +34,8 @@
     "no-undef": ["error"],
     "react/sort-comp": ["off"],
     "react/prefer-stateless-function": ["off"],
-    "react/destructuring-assignment": 1,
     "semi": ["error", "never"],
     "spaced-comment": 0,
-    "comma-dangle": ["error", "never"],
     "react/prop-types": 0,
     "no-extra-boolean-cast": 0,
     "quote-props": 0,
