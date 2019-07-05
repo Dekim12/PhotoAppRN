@@ -2,17 +2,9 @@ import { StyleSheet, } from 'react-native'
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
-    height: 60,
-    position: 'absolute',
-    left: 0,
-    bottom: 0, 
-    flexDirection: 'row', 
+    position: 'absolute',    
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 50,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
     borderColor: 'rgba(115, 112, 117, 0.8)',
     backgroundColor: 'rgba(51, 50, 52, 0.65)',
   },
@@ -22,11 +14,47 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: 72, 
     width: 72,
-    bottom: 15,
     borderRadius: 50,
     backgroundColor: '#59575b',
     borderWidth: 1,
     borderColor: 'rgba(115, 112, 117, 0.8)',
+  },
+  orientationRight: {
+    width: 60,
+    height: '100%',
+    left: 0, 
+    top: 0,
+    flexDirection: 'column',
+    paddingVertical: 50,    
+    borderRightWidth: 1,
+    borderLeftWidth: 1,
+  },
+  orientationLeft: {
+    width: 60,
+    height: '100%',
+    right: 0, 
+    top: 0,
+    flexDirection: 'column',
+  },
+  orientationPortrait: {    
+    width: '100%',
+    height: 60,
+    left: 0,
+    bottom: 0, 
+    flexDirection: 'row',  
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+  },
+  cameraBtnPortrait: {
+    bottom: 15,
+  },
+  cameraBtnLeft: {
+    right: 15,
+    bottom: 3,
+  },
+  cameraBtnRight: {
+    left: 15,
+    bottom: 3,
   },
 })
 
