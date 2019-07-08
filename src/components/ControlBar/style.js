@@ -2,7 +2,13 @@ import { StyleSheet, } from 'react-native'
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',    
+    position: 'absolute',
+    justifyContent: 'space-between',
+    width: '100%', 
+    height: '100%',
+  },
+  bottomBar: {
+    position: 'absolute',
     justifyContent: 'space-between',
     alignItems: 'center',
     borderColor: 'rgba(115, 112, 117, 0.8)',
@@ -57,6 +63,16 @@ const styles = StyleSheet.create({
   cameraBtnRight: {
     left: 15,
     bottom: 3,
+  },
+  backBtnRight: {
+    right: 10,
+  },
+  backBtnDefault: {
+    left: 10, 
+  },
+  backBtn: {
+    position: 'absolute',
+    top: 7,
   },
 })
 

@@ -1,10 +1,9 @@
 // @flow
 
 import React from 'react'
-import Icons from 'react-native-vector-icons/FontAwesome5'
+import Icons, { type FontAwesome5Glyphs, } from 'react-native-vector-icons/FontAwesome5'
 
 import type { ViewStyleProp, } from 'react-native'
-import type { FontAwesome5Glyphs, } from 'react-native-vector-icons/FontAwesome5'
 
 type Props = {
   name: FontAwesome5Glyphs,

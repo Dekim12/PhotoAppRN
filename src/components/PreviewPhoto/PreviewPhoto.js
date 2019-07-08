@@ -1,7 +1,7 @@
 // @flow
 
 import React, { Component, } from 'react'
-import { Dimensions, Image , } from 'react-native'
+import { Dimensions, Image, } from 'react-native'
 
 import { PHOTO_MODE, } from '../../constants'
 import styles from './style'

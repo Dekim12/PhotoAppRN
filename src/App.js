@@ -3,8 +3,8 @@
 import React, { Component, } from 'react'
 import { StyleSheet, View, StatusBar, } from 'react-native'
 
+import type { ViewStyleProp, } from 'react-native'
 import { MainPage, CameraPage, } from './components'
-
 
 type Props = {}
 
@@ -17,7 +17,7 @@ export default class App extends Component<Props, State> {
     isCamera: false,
   }
 
-  toggleCamera = () => this.setState({ isCamera: true, })
+  toggleCamera = () => this.setState(prevState => ({ isCamera: !prevState.isCamera, }))
 
   render() {
     const { isCamera, } = this.state
@@ -26,7 +26,7 @@ export default class App extends Component<Props, State> {
       <View style={styles.container}>
         <StatusBar hidden />
         {isCamera ? (
-          <CameraPage />
+          <CameraPage toggleCamera={this.toggleCamera} />
         ) : (
           <MainPage toggleCamera={this.toggleCamera} />
         )}
@@ -35,7 +35,7 @@ export default class App extends Component<Props, State> {
   }
 }
 
-const styles = StyleSheet.create({
+const styles: ViewStyleProp = StyleSheet.create({
   container: {
     flex: 1,
   },

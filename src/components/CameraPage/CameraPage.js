@@ -1,27 +1,30 @@
 // @flow
 
 import React, { Component, } from 'react'
-import { View, } from 'react-native'
+import { View, PermissionsAndroid, } from 'react-native'
 import { RNCamera, } from 'react-native-camera'
+import CameraRoll from '@react-native-community/cameraroll'
+import RNFS from 'react-native-fs'
 
 import { ControlBar, PreviewPhoto, } from '../index'
 import styles from './style'
 
 import type { PhotoType, } from '../../types'
 
-type Props = {}
+type Props = {
+  toggleCamera: () => void
+}
 
 type State = {
   isFlashEnabled: boolean,
   image: ?PhotoType,
   isCameraReady: boolean,
-  isBackType: boolean,
+  isBackType: boolean
 }
 
 type PhotoOptions = {
-  quality: number, 
-  base64: boolean, 
-  fixOrientation: boolean,
+  quality: number,
+  fixOrientation: boolean
 }
 
 class CameraPage extends Component<Props, State> {
@@ -34,9 +37,30 @@ class CameraPage extends Component<Props, State> {
     isBackType: true,
   }
 
+  checkAndroidPermission = async (): Promise<void> => {
+    try {
+      const permission: string =
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE
+      await PermissionsAndroid.request(permission)
+      Promise.resolve()
+    } catch (error) {
+      Promise.reject(error)
+    }
+  }
+
+  savePicture = async (): Promise<void> => {
+    const { image, } = this.state
+
+    if (image) {
+      await this.checkAndroidPermission()
+      CameraRoll.saveToCameraRoll(image.uri, 'photo')
+    }
+    this.resetPhoto()
+  }
+
   takePicture = async (): Promise<void> => {
     if (this.camera) {
-      const options: PhotoOptions = { quality: 0.5, base64: true, fixOrientation: true, }
+      const options: PhotoOptions = { quality: 0.5, fixOrientation: true, }
 
       const data: PhotoType = await this.camera.takePictureAsync(options)
       this.setState({ image: data, })
@@ -57,7 +81,32 @@ class CameraPage extends Component<Props, State> {
 
   toggleCameraType = (): void => this.setState(prevState => ({ isBackType: !prevState.isBackType, }))
 
-  resetPhoto = (): void => this.setState({ image: null, })
+  removePhotoFromCache = async (): Promise<void> => {
+    const { image, } = this.state
+
+    if (image) {
+      const filePath: string = image.uri.split('///').pop()
+
+      const isFileExists: boolean = await RNFS.exists(filePath)
+
+      if (isFileExists) {
+        RNFS.unlink(filePath)
+      }
+    }
+  }
+
+  resetPhoto = (): void => {
+    this.removePhotoFromCache()
+
+    this.setState({ image: null, })
+  }
+
+  closeCamera = async (): Promise<void> => {
+    const { toggleCamera, } = this.props
+
+    await this.removePhotoFromCache()
+    toggleCamera()
+  }
 
   render() {
     const { isFlashEnabled, image, isCameraReady, isBackType, } = this.state
@@ -96,6 +145,8 @@ class CameraPage extends Component<Props, State> {
           isImage={!!image}
           toggleType={this.toggleCameraType}
           resetPhoto={this.resetPhoto}
+          savePicture={this.savePicture}
+          toggleCamera={this.closeCamera}
         />
       </View>
     )
