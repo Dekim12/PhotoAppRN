@@ -1,6 +1,6 @@
 // @flow
 
-import React, { Component, } from 'react'
+import React, { Component, type Node, } from 'react'
 import { View, ActivityIndicator, } from 'react-native'
 import Orientation from 'react-native-orientation-locker'
 
@@ -12,44 +12,44 @@ import styles from './style'
 
 type Props = {
   flashMode: boolean,
-  isCameraReady: boolean ,
+  isCameraReady: boolean,
   isImage: boolean,
-  toggleType: () => void,  
+  toggleType: () => void,
   takePicture: () => void,
   toggleFlashMode: () => void,
-  resetPhoto: () => void,
+  resetPhoto: () => void
 }
 
-type State = { 
+type State = {
   currentContainerStyle: ?ViewStyleProp,
-  currentCameraBtnStyle: ?ViewStyleProp,
+  currentCameraBtnStyle: ?ViewStyleProp
 }
 
 class ControlBar extends Component<Props, State> {
-  state = { 
+  state = {
     currentContainerStyle: null,
     currentCameraBtnStyle: null,
   }
-  
+
   onOrientationDidChange = (orientation: string): void => {
     switch (orientation) {
       case ORIENTATION_TYPES.landscapeR:
         this.setState({
-          currentContainerStyle: styles.orientationRight, 
+          currentContainerStyle: styles.orientationRight,
           currentCameraBtnStyle: styles.cameraBtnRight,
         })
         break
       case ORIENTATION_TYPES.landscapeL:
         this.setState({
-          currentContainerStyle: styles.orientationLeft, 
+          currentContainerStyle: styles.orientationLeft,
           currentCameraBtnStyle: styles.cameraBtnLeft,
         })
         break
       default:
         this.setState({
-          currentContainerStyle: styles.orientationPortrait, 
+          currentContainerStyle: styles.orientationPortrait,
           currentCameraBtnStyle: styles.cameraBtnPortrait,
-        }) 
+        })
     }
   }
 
@@ -62,19 +62,33 @@ class ControlBar extends Component<Props, State> {
     Orientation.removeDeviceOrientationListener(this.onOrientationDidChange)
   }
 
+  defineMiddleBtn = (): Node => {
+    const { isCameraReady, isImage, } = this.props
+
+    if (isImage) {
+      return <Icon name='save' size={43} />
+    }
+
+    if (isCameraReady) {
+      return <Icon name='camera' size={43} />
+    }
+
+    return <ActivityIndicator color='#3EE7AD' size='large' />
+  }
+
   render() {
-    const { 
-      flashMode, 
-      takePicture, 
-      toggleFlashMode, 
-      isCameraReady, 
-      isImage, 
+    const {
+      flashMode,
+      takePicture,
+      toggleFlashMode,
+      isCameraReady,
+      isImage,
       toggleType,
-      resetPhoto, 
+      resetPhoto,
     } = this.props
     const { currentCameraBtnStyle, currentContainerStyle, } = this.state
 
-    if(!currentCameraBtnStyle && !currentContainerStyle) {
+    if (!currentCameraBtnStyle && !currentContainerStyle) {
       return null
     }
 
@@ -83,26 +97,13 @@ class ControlBar extends Component<Props, State> {
         <TouchableButton style={styles.btnIcons} onPress={toggleFlashMode}>
           <Icon name='bolt' color={flashMode ? '#3EE7AD' : '#e6e5e6'} />
         </TouchableButton>
-        {isCameraReady ? (
-          <TouchableButton
-            style={[styles.cameraBtn, currentCameraBtnStyle]}
-            onPress={takePicture}
-          >
-            {isImage ? (
-              <Icon name='save' size={43} />
-            ) : (
-              <Icon name='camera' size={43} />
-            )}
-          </TouchableButton>
-        ) : (
-          <View style={[styles.cameraBtn, currentCameraBtnStyle]}>
-            {isImage ? (
-              <Icon name='save' size={43} />
-            ) : (
-              <ActivityIndicator color='#3EE7AD' size='large' />
-            )}
-          </View>
-        )}
+        <TouchableButton
+          style={[styles.cameraBtn, currentCameraBtnStyle]}
+          disabled={!isCameraReady}
+          onPress={takePicture}
+        >
+          {this.defineMiddleBtn()}
+        </TouchableButton>
         {isImage ? (
           <TouchableButton style={styles.btnIcons} onPress={resetPhoto}>
             <Icon name='redo-alt' />

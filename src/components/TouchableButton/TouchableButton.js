@@ -1,19 +1,29 @@
 // @flow
 
-import React from 'react'
+import React, { type Node, } from 'react'
 import { TouchableOpacity, } from 'react-native'
 
-import type { Node, } from 'react'
 import type { ViewStyleProp, } from 'react-native'
 
 type Props = {
   onPress: ?() => void,
   style: ?ViewStyleProp,
-  children: ?Node
+  children: ?Node,
+  disabled: boolean, 
 }
 
-const TouchableButton = ({ onPress, style, children, }: Props) => (
-  <TouchableOpacity onPress={onPress} style={style} activeOpacity={0.5}>
+const TouchableButton = ({
+  onPress,
+  style,
+  children,
+  disabled = false,
+}: Props) => (
+  <TouchableOpacity
+    onPress={onPress}
+    style={style}
+    activeOpacity={0.5}
+    disabled={disabled}
+  >
     {children}
   </TouchableOpacity>
 )

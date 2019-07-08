@@ -24,8 +24,12 @@ export default class App extends Component<Props, State> {
 
     return (
       <View style={styles.container}>
-        <StatusBar hidden />          
-        {isCamera ? <CameraPage /> : <MainPage toggleCamera={this.toggleCamera}/>}
+        <StatusBar hidden />
+        {isCamera ? (
+          <CameraPage />
+        ) : (
+          <MainPage toggleCamera={this.toggleCamera} />
+        )}
       </View>
     )
   }

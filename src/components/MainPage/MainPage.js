@@ -11,14 +11,14 @@ type Props = {
 }
 
 const MainPage = ({ toggleCamera, }: Props) => (
-      <View style={styles.container}>
-        <Text style={styles.headline}>Photo List</Text> 
-        <PhotoList />   
-        <TouchableButton onPress={toggleCamera} style={styles.makePhotoBtn}>
-        <Text style={styles.btnText}>MAKE A PHOTO</Text> 
-        </TouchableButton>  
-      </View>
-    )
+  <View style={styles.container}>
+    <Text style={styles.headline}>Photo List</Text>
+    <PhotoList />
+    <TouchableButton onPress={toggleCamera} style={styles.makePhotoBtn}>
+      <Text style={styles.btnText}>MAKE A PHOTO</Text>
+    </TouchableButton>
+  </View>
+)
 
 export { MainPage, }
 

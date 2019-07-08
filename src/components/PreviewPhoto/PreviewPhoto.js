@@ -23,7 +23,10 @@ class PreviewPhoto extends Component<Props, State> {
 
   setResizeImageMode = (): void => {
     const { photoResizeMode, } = this.state
-    const newMode: string = photoResizeMode === PHOTO_MODE.cover ? PHOTO_MODE.contain : PHOTO_MODE.cover
+    const newMode: string =
+      photoResizeMode === PHOTO_MODE.cover
+        ? PHOTO_MODE.contain
+        : PHOTO_MODE.cover
 
     this.setState({ photoResizeMode: newMode, })
   }
@@ -35,7 +38,7 @@ class PreviewPhoto extends Component<Props, State> {
   componentWillUnmount = (): void => {
     Dimensions.removeEventListener('change', this.setResizeImageMode)
   }
-  
+
   render() {
     const { imageData, } = this.props
     const { photoResizeMode, } = this.state

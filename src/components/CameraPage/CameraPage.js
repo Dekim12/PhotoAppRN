@@ -1,3 +1,5 @@
+// @flow
+
 import React, { Component, } from 'react'
 import { View, } from 'react-native'
 import { RNCamera, } from 'react-native-camera'
@@ -5,24 +7,43 @@ import { RNCamera, } from 'react-native-camera'
 import { ControlBar, PreviewPhoto, } from '../index'
 import styles from './style'
 
+import type { PhotoType, } from '../../types'
+
+type Props = {}
+
+type State = {
+  isFlashEnabled: boolean,
+  image: ?PhotoType,
+  isCameraReady: boolean,
+  isBackType: boolean,
+}
+
+type PhotoOptions = {
+  quality: number, 
+  base64: boolean, 
+  fixOrientation: boolean,
+}
+
 class CameraPage extends Component<Props, State> {
+  camera: any
+
   state = {
-    flashMode: false,
+    isFlashEnabled: false,
     image: null,
     isCameraReady: false,
     isBackType: true,
   }
 
-  takePicture = async () => {
+  takePicture = async (): Promise<void> => {
     if (this.camera) {
-      const options = { quality: 0.5, base64: true, fixOrientation: true, }
-      
-      const data = await this.camera.takePictureAsync(options)
+      const options: PhotoOptions = { quality: 0.5, base64: true, fixOrientation: true, }
+
+      const data: PhotoType = await this.camera.takePictureAsync(options)
       this.setState({ image: data, })
     }
   }
-  
-  handleCameraReady = () => {
+
+  handleCameraReady = (): void => {
     const { isCameraReady, } = this.state
 
     if (this.camera.getStatus() === 'READY') {
@@ -32,14 +53,14 @@ class CameraPage extends Component<Props, State> {
     }
   }
 
-  toggleFlashMode = () => this.setState(prevState => ({ flashMode: !prevState.flashMode, }))
+  toggleFlashMode = (): void => this.setState(prevState => ({ isFlashEnabled: !prevState.isFlashEnabled, }))
 
-  toggleCameraType = () => this.setState(prevState => ({ isBackType: !prevState.isBackType, }))
+  toggleCameraType = (): void => this.setState(prevState => ({ isBackType: !prevState.isBackType, }))
 
-  resetPhoto = () => this.setState({ image: null , })
+  resetPhoto = (): void => this.setState({ image: null, })
 
   render() {
-    const { flashMode, image, isCameraReady, isBackType, } = this.state
+    const { isFlashEnabled, image, isCameraReady, isBackType, } = this.state
     const CameraConstants = RNCamera.Constants
 
     return (
@@ -56,7 +77,7 @@ class CameraPage extends Component<Props, State> {
             captureAudio={false}
             onCameraReady={this.handleCameraReady}
             flashMode={
-              flashMode
+              isFlashEnabled
                 ? CameraConstants.FlashMode.on
                 : CameraConstants.FlashMode.off
             }
@@ -69,7 +90,7 @@ class CameraPage extends Component<Props, State> {
         )}
         <ControlBar
           takePicture={this.takePicture}
-          flashMode={flashMode}
+          flashMode={isFlashEnabled}
           toggleFlashMode={this.toggleFlashMode}
           isCameraReady={isCameraReady}
           isImage={!!image}
