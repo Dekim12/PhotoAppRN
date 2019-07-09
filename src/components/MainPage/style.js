@@ -14,15 +14,14 @@ const styles = StyleSheet.create({
     fontFamily: 'Edo',
     textAlign: 'center',
     color: '#ffffff',
-  },  
+  },
   makePhotoBtn: {
     width: '100%',
     height: 60,
-    justifyContent: 'center',    
+    justifyContent: 'center',
     borderTopWidth: 1,
     borderBottomWidth: 1,
     borderColor: '#737075',
-    backgroundColor: '#333234',
   },
   btnText: {
     fontSize: 37,

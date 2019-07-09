@@ -1,7 +1,7 @@
 // @flow
 
 import React, { Component, } from 'react'
-import { View, PermissionsAndroid, } from 'react-native'
+import { View, PermissionsAndroid, BackHandler, } from 'react-native'
 import { RNCamera, } from 'react-native-camera'
 import CameraRoll from '@react-native-community/cameraroll'
 import RNFS from 'react-native-fs'
@@ -35,6 +35,14 @@ class CameraPage extends Component<Props, State> {
     image: null,
     isCameraReady: false,
     isBackType: true,
+  }
+
+  componentDidMount = (): void => {
+    BackHandler.addEventListener('hardwareBackPress', this.closeCamera)
+  }
+
+  componentWillUnmount = (): void => {
+    BackHandler.removeEventListener('hardwareBackPress', this.closeCamera)
   }
 
   checkAndroidPermission = async (): Promise<void> => {
@@ -101,16 +109,21 @@ class CameraPage extends Component<Props, State> {
     this.setState({ image: null, })
   }
 
-  closeCamera = async (): Promise<void> => {
+  closeCamera = async (): Promise<boolean> => {
     const { toggleCamera, } = this.props
+    const { image, } = this.state
 
-    await this.removePhotoFromCache()
+    if (image) {
+      await this.removePhotoFromCache()
+    }
     toggleCamera()
+
+    return true
   }
 
   render() {
     const { isFlashEnabled, image, isCameraReady, isBackType, } = this.state
-    const CameraConstants = RNCamera.Constants
+    const { Constants, } = RNCamera
 
     return (
       <View style={styles.container}>
@@ -127,13 +140,13 @@ class CameraPage extends Component<Props, State> {
             onCameraReady={this.handleCameraReady}
             flashMode={
               isFlashEnabled
-                ? CameraConstants.FlashMode.on
-                : CameraConstants.FlashMode.off
+                ? Constants.FlashMode.on
+                : Constants.FlashMode.off
             }
             type={
               isBackType
-                ? CameraConstants.Type.back
-                : CameraConstants.Type.front
+                ? Constants.Type.back
+                : Constants.Type.front
             }
           />
         )}

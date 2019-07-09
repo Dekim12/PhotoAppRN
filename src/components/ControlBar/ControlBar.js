@@ -1,10 +1,8 @@
 // @flow
 
 import React, { Component, type Node, } from 'react'
-import { View, ActivityIndicator, } from 'react-native'
+import { View, ActivityIndicator, type ViewStyleProp, } from 'react-native'
 import Orientation from 'react-native-orientation-locker'
-
-import type { ViewStyleProp, } from 'react-native'
 
 import { Icon, TouchableButton, } from '../index'
 import { ORIENTATION_TYPES, } from '../../constants'
