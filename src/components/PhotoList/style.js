@@ -1,9 +1,12 @@
 import { StyleSheet, } from 'react-native'
 
 const styles = StyleSheet.create({
-  container: {
+  gestureContainer: {
     flex: 1,
     width: '100%',
+  },
+  container: {
+    flex: 1,
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'flex-start',

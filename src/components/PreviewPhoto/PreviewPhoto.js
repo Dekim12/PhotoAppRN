@@ -3,7 +3,7 @@
 import React, { Component, } from 'react'
 import { Dimensions, Image, } from 'react-native'
 
-import { PHOTO_MODE, } from '../../constants'
+import { RESIZE_MODE, } from '../../constants'
 import styles from './style'
 
 import type { PhotoType, } from '../../types'
@@ -18,15 +18,15 @@ type State = {
 
 class PreviewPhoto extends Component<Props, State> {
   state = {
-    photoResizeMode: PHOTO_MODE.cover,
+    photoResizeMode: RESIZE_MODE.cover,
   }
 
   setResizeImageMode = (): void => {
     const { photoResizeMode, } = this.state
     const newMode: string =
-      photoResizeMode === PHOTO_MODE.cover
-        ? PHOTO_MODE.contain
-        : PHOTO_MODE.cover
+      photoResizeMode === RESIZE_MODE.cover
+        ? RESIZE_MODE.contain
+        : RESIZE_MODE.cover
 
     this.setState({ photoResizeMode: newMode, })
   }

@@ -1,32 +1,21 @@
 // @flow
 
 import React, { Component, } from 'react'
-import { View, Image, Dimensions, BackHandler, } from 'react-native'
+import { View, Image, BackHandler, } from 'react-native'
 
 import { TouchableButton, Icon, } from '../index'
-import { isHorizontalOrientation, } from '../../utils'
+import { DimensionsChecker, } from '../DimensionsChecker'
 import styles from './style'
 
 import { type PhotoDataType, } from '../../types'
 
 type Props = {
   photoInfo: PhotoDataType,
+  isHorizontal: boolean,
   closeSelectedPhoto: () => void
 }
 
-type State = {
-  isHorizontal: boolean
-}
-
-class SelectedPhoto extends Component<Props, State> {
-  state = {
-    isHorizontal: isHorizontalOrientation(),
-  }
-
-  orientationHaveBeenChanged = (): void => this.setState(
-    prevState => ({ isHorizontal: !prevState.isHorizontal, })
-  )
-
+class SelectedPhoto extends Component<Props> {
   closePhotoByBackHandler = (): boolean => {
     const { closeSelectedPhoto, } = this.props
 
@@ -35,18 +24,21 @@ class SelectedPhoto extends Component<Props, State> {
   }
 
   componentDidMount = (): void => {
-    Dimensions.addEventListener('change', this.orientationHaveBeenChanged)
-    BackHandler.addEventListener('hardwareBackPress', this.closePhotoByBackHandler)
+    BackHandler.addEventListener(
+      'hardwareBackPress',
+      this.closePhotoByBackHandler
+    )
   }
 
   componentWillUnmount = (): void => {
-    Dimensions.removeEventListener('change', this.orientationHaveBeenChanged)
-    BackHandler.removeEventListener('hardwareBackPress', this.closePhotoByBackHandler)
+    BackHandler.removeEventListener(
+      'hardwareBackPress',
+      this.closePhotoByBackHandler
+    )
   }
 
   defineResizeMode = (): string => {
-    const { photoInfo, } = this.props
-    const { isHorizontal, } = this.state
+    const { photoInfo, isHorizontal, } = this.props
 
     if (photoInfo.width < photoInfo.height) {
       return isHorizontal ? 'center' : 'cover'
@@ -73,4 +65,4 @@ class SelectedPhoto extends Component<Props, State> {
   }
 }
 
-export { SelectedPhoto, }
+export const WrappedSelectedPhoto = DimensionsChecker(SelectedPhoto)
