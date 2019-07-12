@@ -1,27 +1,19 @@
-import React, { Component, } from 'react'
+import React, { useEffect, useState, } from 'react'
 import { Dimensions, } from 'react-native'
 import { isHorizontalOrientation, } from '../../utils'
 
-const DimensionsChecker = WrappedComponent => class extends Component {
-    state = {
-      isHorizontal: isHorizontalOrientation(),
-    }
+const DimensionsChecker = WrappedComponent => (props) => {
+  const [isHorizontal, setOrientation] = useState(isHorizontalOrientation())
 
-    componentDidMount = () => {
-      Dimensions.addEventListener('change', this.orientationHaveBeenChanged)
-    }
+  const orientationHaveBeenChanged = () => setOrientation(!isHorizontal)
 
-    componentWillUnmount = () => {
-      Dimensions.removeEventListener('change', this.orientationHaveBeenChanged)
-    }
+  useEffect(() => {
+    Dimensions.addEventListener('change', orientationHaveBeenChanged)
 
-    orientationHaveBeenChanged = () => this.setState(prevState => ({ isHorizontal: !prevState.isHorizontal, }))
+    return () => Dimensions.removeEventListener('change', orientationHaveBeenChanged)
+  })
 
-    render() {
-      const { isHorizontal, } = this.state
-
-      return <WrappedComponent isHorizontal={isHorizontal} {...this.props} />
-    }
+  return <WrappedComponent isHorizontal={isHorizontal} {...props} />
 }
 
 export { DimensionsChecker, }

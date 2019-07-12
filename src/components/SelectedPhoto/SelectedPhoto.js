@@ -1,6 +1,6 @@
 // @flow
 
-import React, { Component, } from 'react'
+import React, { useEffect, } from 'react'
 import { View, Image, BackHandler, } from 'react-native'
 
 import { TouchableButton, Icon, } from '../index'
@@ -15,31 +15,26 @@ type Props = {
   closeSelectedPhoto: () => void
 }
 
-class SelectedPhoto extends Component<Props> {
-  closePhotoByBackHandler = (): boolean => {
-    const { closeSelectedPhoto, } = this.props
-
+const SelectedPhoto = ({
+  photoInfo,
+  isHorizontal,
+  closeSelectedPhoto,
+}: Props) => {
+  const closePhotoByBackHandler = (): boolean => {
     closeSelectedPhoto()
     return true
   }
 
-  componentDidMount = (): void => {
-    BackHandler.addEventListener(
+  useEffect(() => {
+    BackHandler.addEventListener('hardwareBackPress', closePhotoByBackHandler)
+
+    return () => BackHandler.removeEventListener(
       'hardwareBackPress',
-      this.closePhotoByBackHandler
+      closePhotoByBackHandler
     )
-  }
+  })
 
-  componentWillUnmount = (): void => {
-    BackHandler.removeEventListener(
-      'hardwareBackPress',
-      this.closePhotoByBackHandler
-    )
-  }
-
-  defineResizeMode = (): string => {
-    const { photoInfo, isHorizontal, } = this.props
-
+  const defineResizeMode = (): string => {
     if (photoInfo.width < photoInfo.height) {
       return isHorizontal ? 'center' : 'cover'
     }
@@ -47,22 +42,18 @@ class SelectedPhoto extends Component<Props> {
     return isHorizontal ? 'cover' : 'center'
   }
 
-  render() {
-    const { photoInfo, closeSelectedPhoto, } = this.props
-
-    return (
-      <View style={styles.container}>
-        <Image
-          style={styles.selectedPhotoStyle}
-          source={{ uri: photoInfo.uri, }}
-          resizeMode={this.defineResizeMode()}
-        />
-        <TouchableButton style={styles.closeBtn} onPress={closeSelectedPhoto}>
-          <Icon name='times' size={40} />
-        </TouchableButton>
-      </View>
-    )
-  }
+  return (
+    <View style={styles.container}>
+      <Image
+        style={styles.selectedPhotoStyle}
+        source={{ uri: photoInfo.uri, }}
+        resizeMode={defineResizeMode()}
+      />
+      <TouchableButton style={styles.closeBtn} onPress={closeSelectedPhoto}>
+        <Icon name='times' size={40} />
+      </TouchableButton>
+    </View>
+  )
 }
 
 export const WrappedSelectedPhoto = DimensionsChecker(SelectedPhoto)

@@ -1,6 +1,6 @@
 // @flow
 
-import React, { Component, } from 'react'
+import React, { useEffect, useState, } from 'react'
 import { Text, View, ActivityIndicator, PermissionsAndroid, } from 'react-native'
 import CameraRoll, {
   type GetPhotosParams,
@@ -22,22 +22,29 @@ type Props = {
   toggleCamera: () => void
 }
 
-type State = {
+type InitialPhotoState = {
   photoList: ?Array<PhotoIdentifier>,
-  selectedPhotoData: ?PhotoDataType,
-  chunkNumber: number,
   nextChunksIndicator: ?string
 }
 
-class MainPage extends Component<Props, State> {
-  state = {
-    photoList: null,
-    selectedPhotoData: null,
-    chunkNumber: 0,
-    nextChunksIndicator: null,
-  }
+const INITIAL_PHOTO_STATE = {
+  photoList: null,
+  nextChunksIndicator: null,
+}
 
-  checkAndroidPermission = async (): Promise<void> => {
+const MainPage = ({ toggleCamera, }: Props) => {
+  const [{ photoList, nextChunksIndicator, }, setPhotoList] = useState(
+    INITIAL_PHOTO_STATE
+  );
+  ({ photoList, nextChunksIndicator, }: InitialPhotoState)
+
+  const [selectedPhotoData, setSelectedPhoto] = useState(null);
+  (selectedPhotoData: ?PhotoDataType)
+
+  const [chunkNumber, changeChunkNumber] = useState(0);
+  (chunkNumber: number)
+
+  const checkAndroidPermission = async (): Promise<void> => {
     try {
       const permission: string =
         PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE
@@ -48,18 +55,7 @@ class MainPage extends Component<Props, State> {
     }
   }
 
-  componentDidMount = async (): Promise<void> => {
-    this.checkAndroidPermission()
-    const photoData: PhotoIdentifiersPage = await this.getPhoto()
-
-    this.setState({
-      photoList: photoData.edges,
-      nextChunksIndicator: photoData.page_info.end_cursor || null,
-    })
-  }
-
-  getPhoto = async (): Promise<PhotoIdentifiersPage> => {
-    const { nextChunksIndicator, } = this.state
+  const getPhoto = async (): Promise<PhotoIdentifiersPage> => {
     const startParams: GetPhotosParams = {
       first: MAX_COUNT_LIST_PHOTOS * 3,
       assetType: 'Photos',
@@ -73,24 +69,36 @@ class MainPage extends Component<Props, State> {
     return data
   }
 
-  selectPhoto = (data: PhotoDataType): void => this.setState({ selectedPhotoData: data, })
+  const setStartData = async () => {
+    checkAndroidPermission()
+    const photoData: PhotoIdentifiersPage = await getPhoto()
 
-  closeSelectedPhoto = (): void => this.setState({ selectedPhotoData: null, })
+    setPhotoList({
+      photoList: photoData.edges,
+      nextChunksIndicator: photoData.page_info.end_cursor || null,
+    })
+  }
 
-  getMorePhoto = async (): Promise<void> => {
-    const { photoList, } = this.state
-    const photoData: PhotoIdentifiersPage = await this.getPhoto()
+  useEffect(() => {
+    setStartData()
+  }, [])
+
+  const selectPhoto = (data: PhotoDataType): void => setSelectedPhoto(data)
+
+  const closeSelectedPhoto = (): void => setSelectedPhoto(null)
+
+  const getMorePhoto = async (): Promise<void> => {
+    const photoData: PhotoIdentifiersPage = await getPhoto()
 
     if (photoList) {
-      this.setState({
+      setPhotoList({
         photoList: photoList.concat(photoData.edges),
         nextChunksIndicator: photoData.page_info.end_cursor || null,
       })
     }
   }
 
-  showNextList = (forward: boolean): void => {
-    const { chunkNumber, nextChunksIndicator, photoList, } = this.state
+  const showNextList = (forward: boolean): void => {
     const countShowedPhoto: number = (chunkNumber + 1) * MAX_COUNT_LIST_PHOTOS
 
     if (!photoList) {
@@ -99,50 +107,45 @@ class MainPage extends Component<Props, State> {
 
     if (forward && nextChunksIndicator) {
       if (photoList.length - countShowedPhoto <= MAX_COUNT_LIST_PHOTOS) {
-        this.getMorePhoto()
+        getMorePhoto()
       }
 
-      this.setState({ chunkNumber: chunkNumber + 1, })
+      changeChunkNumber(chunkNumber + 1)
     } else if (forward && !nextChunksIndicator) {
       if (countShowedPhoto < photoList.length) {
-        this.setState({ chunkNumber: chunkNumber + 1, })
+        changeChunkNumber(chunkNumber + 1)
       }
     } else if (!forward && chunkNumber) {
-      this.setState({ chunkNumber: chunkNumber - 1, })
+      changeChunkNumber(chunkNumber - 1)
     }
   }
 
-  render() {
-    const { toggleCamera, } = this.props
-    const { photoList, selectedPhotoData, chunkNumber, } = this.state
-
-    return (
-      <View style={styles.container}>
-        <Text style={styles.headline}>Photo List</Text>
-        {photoList ? (
-          <WrappedPhotoList
-            photoList={photoList.slice(
-              chunkNumber * MAX_COUNT_LIST_PHOTOS,
-              (chunkNumber + 1) * MAX_COUNT_LIST_PHOTOS
-            )}
-            selectPhoto={this.selectPhoto}
-            showNextList={this.showNextList}
-          />
-        ) : (
-          <ActivityIndicator color='#3EE7AD' size='large' />
-        )}
-        <TouchableButton onPress={toggleCamera} style={styles.makePhotoBtn}>
-          <Text style={styles.btnText}>MAKE A PHOTO</Text>
-        </TouchableButton>
-        {selectedPhotoData && (
-          <WrappedSelectedPhoto
-            photoInfo={selectedPhotoData}
-            closeSelectedPhoto={this.closeSelectedPhoto}
-          />
-        )}
-      </View>
-    )
-  }
+  return (
+    <View style={styles.container}>
+      <Text style={styles.headline}>Photo List</Text>
+      {photoList ? (
+        <WrappedPhotoList
+          photoList={photoList.slice(
+            chunkNumber * MAX_COUNT_LIST_PHOTOS,
+            (chunkNumber + 1) * MAX_COUNT_LIST_PHOTOS
+          )}
+          selectPhoto={selectPhoto}
+          showNextList={showNextList}
+        />
+      ) : (
+        <ActivityIndicator color='#3EE7AD' size='large' />
+      )}
+      <TouchableButton onPress={toggleCamera} style={styles.makePhotoBtn}>
+        <Text style={styles.btnText}>MAKE A PHOTO</Text>
+      </TouchableButton>
+      {selectedPhotoData && (
+        <WrappedSelectedPhoto
+          photoInfo={selectedPhotoData}
+          closeSelectedPhoto={closeSelectedPhoto}
+        />
+      )}
+    </View>
+  )
 }
 
 export { MainPage, }

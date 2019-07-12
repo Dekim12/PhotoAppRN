@@ -1,6 +1,6 @@
 // @flow
 
-import React, { Component, type Node, } from 'react'
+import React, { useEffect, useState, type Node, } from 'react'
 import { View, ActivityIndicator, type ViewStyleProp, } from 'react-native'
 import Orientation from 'react-native-orientation-locker'
 
@@ -26,31 +26,51 @@ type State = {
   currentBackBtnStyle: ?ViewStyleProp
 }
 
-class ControlBar extends Component<Props, State> {
-  state = {
-    currentBottomBarStyle: null,
-    currentCameraBtnStyle: null,
-    currentBackBtnStyle: null,
-  }
+const INITIAL_BAR_STATE = {
+  currentBottomBarStyle: null,
+  currentCameraBtnStyle: null,
+  currentBackBtnStyle: null,
+}
 
-  onOrientationDidChange = (orientation: string): void => {
+const ControlBar = ({
+  flashMode,
+  takePicture,
+  toggleFlashMode,
+  isCameraReady,
+  isImage,
+  toggleType,
+  resetPhoto,
+  savePicture,
+  toggleCamera,
+}: Props) => {
+  const [
+    { currentBottomBarStyle, currentCameraBtnStyle, currentBackBtnStyle, },
+    setBarState
+  ] = useState(INITIAL_BAR_STATE);
+  ({
+    currentBottomBarStyle,
+    currentCameraBtnStyle,
+    currentBackBtnStyle,
+  }: State)
+
+  const onOrientationDidChange = (orientation: string): void => {
     switch (orientation) {
       case ORIENTATION_TYPES.landscapeR:
-        this.setState({
+        setBarState({
           currentBottomBarStyle: styles.orientationRight,
           currentCameraBtnStyle: styles.cameraBtnRight,
           currentBackBtnStyle: styles.backBtnRight,
         })
         break
       case ORIENTATION_TYPES.landscapeL:
-        this.setState({
+        setBarState({
           currentBottomBarStyle: styles.orientationLeft,
           currentCameraBtnStyle: styles.cameraBtnLeft,
           currentBackBtnStyle: styles.backBtnDefault,
         })
         break
       default:
-        this.setState({
+        setBarState({
           currentBottomBarStyle: styles.orientationPortrait,
           currentCameraBtnStyle: styles.cameraBtnPortrait,
           currentBackBtnStyle: styles.backBtnDefault,
@@ -58,18 +78,14 @@ class ControlBar extends Component<Props, State> {
     }
   }
 
-  componentDidMount = (): void => {
-    Orientation.getDeviceOrientation(this.onOrientationDidChange)
-    Orientation.addDeviceOrientationListener(this.onOrientationDidChange)
-  }
+  useEffect(() => {
+    Orientation.getDeviceOrientation(onOrientationDidChange)
+    Orientation.addDeviceOrientationListener(onOrientationDidChange)
 
-  componentWillUnmount = (): void => {
-    Orientation.removeDeviceOrientationListener(this.onOrientationDidChange)
-  }
+    return () => Orientation.removeDeviceOrientationListener(onOrientationDidChange)
+  }, [])
 
-  defineMiddleBtn = (): Node => {
-    const { isCameraReady, isImage, } = this.props
-
+  const defineMiddleBtn = (): Node => {
     if (isImage) {
       return <Icon name='save' size={43} />
     }
@@ -81,60 +97,41 @@ class ControlBar extends Component<Props, State> {
     return <ActivityIndicator color='#3EE7AD' size='large' />
   }
 
-  render() {
-    const {
-      flashMode,
-      takePicture,
-      toggleFlashMode,
-      isCameraReady,
-      isImage,
-      toggleType,
-      resetPhoto,
-      savePicture,
-      toggleCamera,
-    } = this.props
-    const {
-      currentCameraBtnStyle,
-      currentBottomBarStyle,
-      currentBackBtnStyle,
-    } = this.state
-
-    if (!currentCameraBtnStyle && !currentBottomBarStyle) {
-      return null
-    }
-
-    return (
-      <View style={styles.container}>
-        <TouchableButton
-          style={[styles.backBtn, currentBackBtnStyle]}
-          onPress={toggleCamera}
-        >
-          <Icon name='arrow-left' />
-        </TouchableButton>
-        <View style={[styles.bottomBar, currentBottomBarStyle]}>
-          <TouchableButton style={styles.btnIcons} onPress={toggleFlashMode}>
-            <Icon name='bolt' color={flashMode ? '#3EE7AD' : '#e6e5e6'} />
-          </TouchableButton>
-          <TouchableButton
-            style={[styles.cameraBtn, currentCameraBtnStyle]}
-            disabled={!isCameraReady}
-            onPress={isImage ? savePicture : takePicture}
-          >
-            {this.defineMiddleBtn()}
-          </TouchableButton>
-          {isImage ? (
-            <TouchableButton style={styles.btnIcons} onPress={resetPhoto}>
-              <Icon name='redo-alt' />
-            </TouchableButton>
-          ) : (
-            <TouchableButton style={styles.btnIcons} onPress={toggleType}>
-              <Icon name='sync-alt' />
-            </TouchableButton>
-          )}
-        </View>
-      </View>
-    )
+  if (!currentCameraBtnStyle && !currentBottomBarStyle) {
+    return null
   }
+
+  return (
+    <View style={styles.container}>
+      <TouchableButton
+        style={[styles.backBtn, currentBackBtnStyle]}
+        onPress={toggleCamera}
+      >
+        <Icon name='arrow-left' />
+      </TouchableButton>
+      <View style={[styles.bottomBar, currentBottomBarStyle]}>
+        <TouchableButton style={styles.btnIcons} onPress={toggleFlashMode}>
+          <Icon name='bolt' color={flashMode ? '#3EE7AD' : '#e6e5e6'} />
+        </TouchableButton>
+        <TouchableButton
+          style={[styles.cameraBtn, currentCameraBtnStyle]}
+          disabled={!isCameraReady}
+          onPress={isImage ? savePicture : takePicture}
+        >
+          {defineMiddleBtn()}
+        </TouchableButton>
+        {isImage ? (
+          <TouchableButton style={styles.btnIcons} onPress={resetPhoto}>
+            <Icon name='redo-alt' />
+          </TouchableButton>
+        ) : (
+          <TouchableButton style={styles.btnIcons} onPress={toggleType}>
+            <Icon name='sync-alt' />
+          </TouchableButton>
+        )}
+      </View>
+    </View>
+  )
 }
 
 export { ControlBar, }

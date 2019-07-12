@@ -1,6 +1,6 @@
 // @flow
 
-import React, { Component, } from 'react'
+import React, { useEffect, useState, } from 'react'
 import { Dimensions, Image, } from 'react-native'
 
 import { RESIZE_MODE, } from '../../constants'
@@ -12,45 +12,32 @@ type Props = {
   imageData: PhotoType
 }
 
-type State = {
-  photoResizeMode: string
-}
+const PreviewPhoto = ({ imageData, }: Props) => {
+  const [photoResizeMode, setPhotoResizeMode] = useState(RESIZE_MODE.cover);
+  (photoResizeMode: string)
 
-class PreviewPhoto extends Component<Props, State> {
-  state = {
-    photoResizeMode: RESIZE_MODE.cover,
-  }
-
-  setResizeImageMode = (): void => {
-    const { photoResizeMode, } = this.state
+  const setResizeImageMode = (): void => {
     const newMode: string =
       photoResizeMode === RESIZE_MODE.cover
         ? RESIZE_MODE.contain
         : RESIZE_MODE.cover
 
-    this.setState({ photoResizeMode: newMode, })
+    setPhotoResizeMode(newMode)
   }
 
-  componentDidMount = (): void => {
-    Dimensions.addEventListener('change', this.setResizeImageMode)
-  }
+  useEffect(() => {
+    Dimensions.addEventListener('change', setResizeImageMode)
 
-  componentWillUnmount = (): void => {
-    Dimensions.removeEventListener('change', this.setResizeImageMode)
-  }
+    return () => Dimensions.removeEventListener('change', setResizeImageMode)
+  })
 
-  render() {
-    const { imageData, } = this.props
-    const { photoResizeMode, } = this.state
-
-    return (
-      <Image
-        source={{ uri: imageData.uri, }}
-        style={styles.photoStyle}
-        resizeMode={photoResizeMode}
-      />
-    )
-  }
+  return (
+    <Image
+      source={{ uri: imageData.uri, }}
+      style={styles.photoStyle}
+      resizeMode={photoResizeMode}
+    />
+  )
 }
 
 export { PreviewPhoto, }

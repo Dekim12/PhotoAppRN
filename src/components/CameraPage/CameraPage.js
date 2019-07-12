@@ -1,6 +1,6 @@
 // @flow
 
-import React, { Component, } from 'react'
+import React, { useEffect, useState, } from 'react'
 import { View, PermissionsAndroid, BackHandler, } from 'react-native'
 import { RNCamera, } from 'react-native-camera'
 import CameraRoll from '@react-native-community/cameraroll'
@@ -15,37 +15,28 @@ type Props = {
   toggleCamera: () => void
 }
 
-type State = {
-  isFlashEnabled: boolean,
-  image: ?PhotoType,
-  isCameraReady: boolean,
-  isBackType: boolean
-}
-
 type PhotoOptions = {
   quality: number,
   fixOrientation: boolean
 }
 
-class CameraPage extends Component<Props, State> {
-  camera: any
+const CameraPage = ({ toggleCamera, }: Props) => {
+  const { Constants, } = RNCamera
+  let camera: any = null
 
-  state = {
-    isFlashEnabled: false,
-    image: null,
-    isCameraReady: false,
-    isBackType: true,
-  }
+  const [isFlashEnabled, changeFlashMode] = useState(false);
+  (isFlashEnabled: boolean)
 
-  componentDidMount = (): void => {
-    BackHandler.addEventListener('hardwareBackPress', this.closeCamera)
-  }
+  const [image, setImage] = useState(null);
+  (image: ?PhotoType)
 
-  componentWillUnmount = (): void => {
-    BackHandler.removeEventListener('hardwareBackPress', this.closeCamera)
-  }
+  const [isCameraReady, changeCameraState] = useState(false);
+  (isCameraReady: boolean)
 
-  checkAndroidPermission = async (): Promise<void> => {
+  const [isBackType, changeCameraType] = useState(true);
+  (isBackType: boolean)
+
+  const checkAndroidPermission = async (): Promise<void> => {
     try {
       const permission: string =
         PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE
@@ -56,45 +47,9 @@ class CameraPage extends Component<Props, State> {
     }
   }
 
-  savePicture = async (): Promise<void> => {
-    const { image, } = this.state
-
-    if (image) {
-      await this.checkAndroidPermission()
-      CameraRoll.saveToCameraRoll(image.uri, 'photo')
-    }
-    this.resetPhoto()
-  }
-
-  takePicture = async (): Promise<void> => {
-    if (this.camera) {
-      const options: PhotoOptions = { quality: 0.5, fixOrientation: true, }
-
-      const data: PhotoType = await this.camera.takePictureAsync(options)
-      this.setState({ image: data, })
-    }
-  }
-
-  handleCameraReady = (): void => {
-    const { isCameraReady, } = this.state
-
-    if (this.camera.getStatus() === 'READY') {
-      this.setState({ isCameraReady: true, })
-    } else if (isCameraReady) {
-      this.setState({ isCameraReady: false, })
-    }
-  }
-
-  toggleFlashMode = (): void => this.setState(prevState => ({ isFlashEnabled: !prevState.isFlashEnabled, }))
-
-  toggleCameraType = (): void => this.setState(prevState => ({ isBackType: !prevState.isBackType, }))
-
-  removePhotoFromCache = async (): Promise<void> => {
-    const { image, } = this.state
-
+  const removePhotoFromCache = async (): Promise<void> => {
     if (image) {
       const filePath: string = image.uri.split('///').pop()
-
       const isFileExists: boolean = await RNFS.exists(filePath)
 
       if (isFileExists) {
@@ -103,67 +58,89 @@ class CameraPage extends Component<Props, State> {
     }
   }
 
-  resetPhoto = (): void => {
-    this.removePhotoFromCache()
-
-    this.setState({ image: null, })
-  }
-
-  closeCamera = async (): Promise<boolean> => {
-    const { toggleCamera, } = this.props
-    const { image, } = this.state
-
+  const closeCamera = async (): Promise<boolean> => {
     if (image) {
-      await this.removePhotoFromCache()
+      await removePhotoFromCache()
     }
     toggleCamera()
 
     return true
   }
 
-  render() {
-    const { isFlashEnabled, image, isCameraReady, isBackType, } = this.state
-    const { Constants, } = RNCamera
+  useEffect(() => {
+    BackHandler.addEventListener('hardwareBackPress', closeCamera)
 
-    return (
-      <View style={styles.container}>
-        {image ? (
-          <PreviewPhoto imageData={image} />
-        ) : (
-          <RNCamera
-            ref={(ref) => {
-              this.camera = ref
-            }}
-            style={styles.preview}
-            ratio='16:9'
-            captureAudio={false}
-            onCameraReady={this.handleCameraReady}
-            flashMode={
-              isFlashEnabled
-                ? Constants.FlashMode.on
-                : Constants.FlashMode.off
-            }
-            type={
-              isBackType
-                ? Constants.Type.back
-                : Constants.Type.front
-            }
-          />
-        )}
-        <ControlBar
-          takePicture={this.takePicture}
-          flashMode={isFlashEnabled}
-          toggleFlashMode={this.toggleFlashMode}
-          isCameraReady={isCameraReady}
-          isImage={!!image}
-          toggleType={this.toggleCameraType}
-          resetPhoto={this.resetPhoto}
-          savePicture={this.savePicture}
-          toggleCamera={this.closeCamera}
-        />
-      </View>
-    )
+    return () => BackHandler.removeEventListener('hardwareBackPress', closeCamera)
+  }, [])
+
+  const resetPhoto = (): void => {
+    removePhotoFromCache()
+    setImage(null)
   }
+
+  const savePicture = async (): Promise<void> => {
+    if (image) {
+      await checkAndroidPermission()
+      CameraRoll.saveToCameraRoll(image.uri, 'photo')
+    }
+    resetPhoto()
+  }
+
+  const takePicture = async (): Promise<void> => {
+    if (camera) {
+      const options: PhotoOptions = { quality: 0.5, fixOrientation: true, }
+
+      const data: PhotoType = await camera.takePictureAsync(options)
+      setImage(data)
+    }
+  }
+
+  const handleCameraReady = (): void => {
+    if (camera.getStatus() === 'READY') {
+      changeCameraState(true)
+    } else if (isCameraReady) {
+      changeCameraState(false)
+    }
+  }
+
+  const toggleFlashMode = (): void => changeFlashMode(!isFlashEnabled)
+
+  const toggleCameraType = (): void => changeCameraType(!isBackType)
+
+  const setRef = (ref): void => {
+    camera = ref
+  }
+
+  return (
+    <View style={styles.container}>
+      {image ? (
+        <PreviewPhoto imageData={image} />
+      ) : (
+        <RNCamera
+          ref={setRef}
+          style={styles.preview}
+          ratio='16:9'
+          captureAudio={false}
+          onCameraReady={handleCameraReady}
+          flashMode={
+            isFlashEnabled ? Constants.FlashMode.on : Constants.FlashMode.off
+          }
+          type={isBackType ? Constants.Type.back : Constants.Type.front}
+        />
+      )}
+      <ControlBar
+        takePicture={takePicture}
+        flashMode={isFlashEnabled}
+        toggleFlashMode={toggleFlashMode}
+        isCameraReady={isCameraReady}
+        isImage={!!image}
+        toggleType={toggleCameraType}
+        resetPhoto={resetPhoto}
+        savePicture={savePicture}
+        toggleCamera={closeCamera}
+      />
+    </View>
+  )
 }
 
 export { CameraPage, }

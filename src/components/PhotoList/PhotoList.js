@@ -1,6 +1,6 @@
 // @flow
 
-import React, { Component, type Node, } from 'react'
+import React, { type Node, useCallback, } from 'react'
 import { View, Image, } from 'react-native'
 import GestureRecognizer from 'react-native-swipe-gestures'
 import uuidv4 from 'uuid/v4'
@@ -25,25 +25,25 @@ type Props = {
   isHorizontal: boolean
 }
 
-type State = {
-  photoSizes: PhotoSizes
-}
+type VoidFunction = () => void
 
-class PhotoList extends Component<Props, State> {
-  state = {
-    photoSizes: defineImageSizes(),
-  }
+const PhotoList = ({
+  photoList,
+  selectPhoto,
+  showNextList,
+  isHorizontal,
+}: Props) => {
+  const photoSizes: PhotoSizes = defineImageSizes()
 
-  generateItems = (list: Array<PhotoIdentifier>): Array<Node> => {
-    const { selectPhoto, isHorizontal, } = this.props
-    const { photoSizes, } = this.state
-
+  const generateItems = (list: Array<PhotoIdentifier>): Array<Node> => {
     const currentSizeObj: PhotoOrientationSizes = isHorizontal
       ? photoSizes.horizontal
       : photoSizes.vertical
 
     return list.map(({ node: { image, }, }) => {
-      const showCurrentPhoto = (): void => selectPhoto(image)
+      const showCurrentPhoto: VoidFunction = useCallback(() => {
+        selectPhoto(image)
+      }, [image])
 
       return (
         <TouchableButton
@@ -63,25 +63,20 @@ class PhotoList extends Component<Props, State> {
     })
   }
 
-  onSwipe = ({ dx, }: { dx: number }): void => {
-    const { showNextList, } = this.props
+  const onSwipe = ({ dx, }): void => {
     showNextList(dx < 0)
   }
 
-  render() {
-    const { photoList, } = this.props
-
-    return (
-      <GestureRecognizer
-        onSwipeLeft={this.onSwipe}
-        onSwipeRight={this.onSwipe}
-        config={GESTURE_CONFIG}
-        style={styles.gestureContainer}
-      >
-        <View style={styles.container}>{this.generateItems(photoList)}</View>
-      </GestureRecognizer>
-    )
-  }
+  return (
+    <GestureRecognizer
+      onSwipeLeft={onSwipe}
+      onSwipeRight={onSwipe}
+      config={GESTURE_CONFIG}
+      style={styles.gestureContainer}
+    >
+      <View style={styles.container}>{generateItems(photoList)}</View>
+    </GestureRecognizer>
+  )
 }
 
 export const WrappedPhotoList = DimensionsChecker(PhotoList)
