@@ -1,9 +1,10 @@
 // @flow
 
-import React, { useEffect, useState, } from 'react'
-import { Dimensions, Image, } from 'react-native'
+import React, { useState, } from 'react'
+import { Image, } from 'react-native'
 
 import { RESIZE_MODE, } from '../../constants'
+import { useDimensions, } from '../../utils/hooks'
 import styles from './style'
 
 import type { PhotoType, } from '../../types'
@@ -25,11 +26,7 @@ const PreviewPhoto = ({ imageData, }: Props) => {
     setPhotoResizeMode(newMode)
   }
 
-  useEffect(() => {
-    Dimensions.addEventListener('change', setResizeImageMode)
-
-    return () => Dimensions.removeEventListener('change', setResizeImageMode)
-  })
+  useDimensions(setResizeImageMode)
 
   return (
     <Image

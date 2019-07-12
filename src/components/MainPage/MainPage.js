@@ -8,11 +8,7 @@ import CameraRoll, {
   type PhotoIdentifier,
 } from '@react-native-community/cameraroll'
 
-import {
-  TouchableButton,
-  WrappedPhotoList,
-  WrappedSelectedPhoto,
-} from '../index'
+import { TouchableButton, PhotoList, SelectedPhoto, } from '../index'
 import { MAX_COUNT_LIST_PHOTOS, } from '../../constants'
 import styles from './style'
 
@@ -124,7 +120,7 @@ const MainPage = ({ toggleCamera, }: Props) => {
     <View style={styles.container}>
       <Text style={styles.headline}>Photo List</Text>
       {photoList ? (
-        <WrappedPhotoList
+        <PhotoList
           photoList={photoList.slice(
             chunkNumber * MAX_COUNT_LIST_PHOTOS,
             (chunkNumber + 1) * MAX_COUNT_LIST_PHOTOS
@@ -139,7 +135,7 @@ const MainPage = ({ toggleCamera, }: Props) => {
         <Text style={styles.btnText}>MAKE A PHOTO</Text>
       </TouchableButton>
       {selectedPhotoData && (
-        <WrappedSelectedPhoto
+        <SelectedPhoto
           photoInfo={selectedPhotoData}
           closeSelectedPhoto={closeSelectedPhoto}
         />

@@ -7,7 +7,7 @@ import uuidv4 from 'uuid/v4'
 import { type PhotoIdentifier, } from '@react-native-community/cameraroll'
 
 import { TouchableButton, } from '../index'
-import { DimensionsChecker, } from '../DimensionsChecker'
+import { useDimensions, } from '../../utils/hooks'
 import { defineImageSizes, } from '../../utils'
 import { GESTURE_CONFIG, } from '../../constants'
 import styles from './style'
@@ -21,18 +21,13 @@ import {
 type Props = {
   photoList: Array<PhotoIdentifier>,
   selectPhoto: (data: PhotoDataType) => void,
-  showNextList: (forward: boolean) => void,
-  isHorizontal: boolean
+  showNextList: (forward: boolean) => void
 }
 
 type VoidFunction = () => void
 
-const PhotoList = ({
-  photoList,
-  selectPhoto,
-  showNextList,
-  isHorizontal,
-}: Props) => {
+const PhotoList = ({ photoList, selectPhoto, showNextList, }: Props) => {
+  const isHorizontal: boolean = useDimensions()
   const photoSizes: PhotoSizes = defineImageSizes()
 
   const generateItems = (list: Array<PhotoIdentifier>): Array<Node> => {
@@ -79,4 +74,4 @@ const PhotoList = ({
   )
 }
 
-export const WrappedPhotoList = DimensionsChecker(PhotoList)
+export { PhotoList, }

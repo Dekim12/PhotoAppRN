@@ -1,38 +1,28 @@
 // @flow
 
-import React, { useEffect, } from 'react'
-import { View, Image, BackHandler, } from 'react-native'
+import React from 'react'
+import { View, Image, } from 'react-native'
 
 import { TouchableButton, Icon, } from '../index'
-import { DimensionsChecker, } from '../DimensionsChecker'
+import { useBackHandler, useDimensions, } from '../../utils/hooks'
 import styles from './style'
 
 import { type PhotoDataType, } from '../../types'
 
 type Props = {
   photoInfo: PhotoDataType,
-  isHorizontal: boolean,
   closeSelectedPhoto: () => void
 }
 
-const SelectedPhoto = ({
-  photoInfo,
-  isHorizontal,
-  closeSelectedPhoto,
-}: Props) => {
+const SelectedPhoto = ({ photoInfo, closeSelectedPhoto, }: Props) => {
+  const isHorizontal: boolean = useDimensions()
+
   const closePhotoByBackHandler = (): boolean => {
     closeSelectedPhoto()
     return true
   }
 
-  useEffect(() => {
-    BackHandler.addEventListener('hardwareBackPress', closePhotoByBackHandler)
-
-    return () => BackHandler.removeEventListener(
-      'hardwareBackPress',
-      closePhotoByBackHandler
-    )
-  })
+  useBackHandler(closePhotoByBackHandler)
 
   const defineResizeMode = (): string => {
     if (photoInfo.width < photoInfo.height) {
@@ -56,4 +46,4 @@ const SelectedPhoto = ({
   )
 }
 
-export const WrappedSelectedPhoto = DimensionsChecker(SelectedPhoto)
+export { SelectedPhoto, }

@@ -1,12 +1,13 @@
 // @flow
 
-import React, { useEffect, useState, } from 'react'
-import { View, PermissionsAndroid, BackHandler, } from 'react-native'
+import React, { useState, } from 'react'
+import { View, PermissionsAndroid, } from 'react-native'
 import { RNCamera, } from 'react-native-camera'
 import CameraRoll from '@react-native-community/cameraroll'
 import RNFS from 'react-native-fs'
 
 import { ControlBar, PreviewPhoto, } from '../index'
+import { useBackHandler, } from '../../utils/hooks'
 import styles from './style'
 
 import type { PhotoType, } from '../../types'
@@ -67,11 +68,7 @@ const CameraPage = ({ toggleCamera, }: Props) => {
     return true
   }
 
-  useEffect(() => {
-    BackHandler.addEventListener('hardwareBackPress', closeCamera)
-
-    return () => BackHandler.removeEventListener('hardwareBackPress', closeCamera)
-  }, [])
+  useBackHandler(closeCamera)
 
   const resetPhoto = (): void => {
     removePhotoFromCache()
