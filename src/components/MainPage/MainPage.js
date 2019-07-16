@@ -94,7 +94,7 @@ const MainPage = ({ toggleCamera, }: Props) => {
     }
   }
 
-  const showPhotoOrLoad = (showeredPhoto) => {
+  const displayPhotoOrLoad = (showeredPhoto) => {
     if (!photoList) {
       return
     }
@@ -105,7 +105,7 @@ const MainPage = ({ toggleCamera, }: Props) => {
     changeChunkNumber(chunkNumber + 1)
   }
 
-  const showPhotoOrSkip = (showeredPhoto) => {
+  const displayPhotoOrSkip = (showeredPhoto) => {
     if (!photoList) {
       return
     }
@@ -119,9 +119,9 @@ const MainPage = ({ toggleCamera, }: Props) => {
     const countShowedPhoto: number = (chunkNumber + 1) * MAX_COUNT_LIST_PHOTOS
 
     if (forward && nextChunksIndicator) {
-      showPhotoOrLoad(countShowedPhoto)
+      displayPhotoOrLoad(countShowedPhoto)
     } else if (forward && !nextChunksIndicator) {
-      showPhotoOrSkip(countShowedPhoto)
+      displayPhotoOrSkip(countShowedPhoto)
     } else if (!forward && chunkNumber) {
       changeChunkNumber(chunkNumber - 1)
     }

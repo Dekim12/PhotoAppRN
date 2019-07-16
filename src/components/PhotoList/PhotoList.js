@@ -66,7 +66,6 @@ const PhotoList = ({ photoList, selectPhoto, showNextList, }: Props) => {
       onSwipeRight={onSwipe}
       config={GESTURE_CONFIG}
       style={styles.gestureContainer}
-      rr
     >
       <View style={styles.container}>{generateItems(photoList)}</View>
     </GestureRecognizer>
