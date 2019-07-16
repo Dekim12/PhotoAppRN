@@ -9,7 +9,7 @@ import CameraRoll, {
 } from '@react-native-community/cameraroll'
 
 import { TouchableButton, PhotoList, SelectedPhoto, } from '../index'
-import { MAX_COUNT_LIST_PHOTOS, } from '../../constants'
+import { MAX_PHOTO_NUMBER, } from '../../constants'
 import styles from './style'
 
 import { type PhotoDataType, } from '../../types'
@@ -18,27 +18,12 @@ type Props = {
   toggleCamera: () => void
 }
 
-type InitialPhotoState = {
-  photoList: ?Array<PhotoIdentifier>,
-  nextChunksIndicator: ?string
-}
-
-const INITIAL_PHOTO_STATE = {
-  photoList: null,
-  nextChunksIndicator: null,
-}
-
 const MainPage = ({ toggleCamera, }: Props) => {
-  const [{ photoList, nextChunksIndicator, }, setPhotoList] = useState(
-    INITIAL_PHOTO_STATE
-  );
-  ({ photoList, nextChunksIndicator, }: InitialPhotoState)
+  const [photoList, setPhotoList] = useState(null);
+  (photoList: ?Array<PhotoIdentifier>)
 
   const [selectedPhotoData, setSelectedPhoto] = useState(null);
   (selectedPhotoData: ?PhotoDataType)
-
-  const [chunkNumber, changeChunkNumber] = useState(0);
-  (chunkNumber: number)
 
   const checkAndroidPermission = async (): Promise<void> => {
     try {
@@ -53,15 +38,11 @@ const MainPage = ({ toggleCamera, }: Props) => {
 
   const getPhoto = async (): Promise<PhotoIdentifiersPage> => {
     const startParams: GetPhotosParams = {
-      first: MAX_COUNT_LIST_PHOTOS * 3,
+      first: MAX_PHOTO_NUMBER,
       assetType: 'Photos',
     }
 
-    if (nextChunksIndicator) {
-      startParams.after = nextChunksIndicator
-    }
     const data: PhotoIdentifiersPage = await CameraRoll.getPhotos(startParams)
-
     return data
   }
 
@@ -69,10 +50,7 @@ const MainPage = ({ toggleCamera, }: Props) => {
     checkAndroidPermission()
     const photoData: PhotoIdentifiersPage = await getPhoto()
 
-    setPhotoList({
-      photoList: photoData.edges,
-      nextChunksIndicator: photoData.page_info.end_cursor || null,
-    })
+    setPhotoList(photoData.edges)
   }
 
   useEffect(() => {
@@ -83,50 +61,13 @@ const MainPage = ({ toggleCamera, }: Props) => {
 
   const closeSelectedPhoto = (): void => setSelectedPhoto(null)
 
-  const getMorePhoto = async (): Promise<void> => {
-    const photoData: PhotoIdentifiersPage = await getPhoto()
-
-    if (photoList) {
-      setPhotoList({
-        photoList: photoList.concat(photoData.edges),
-        nextChunksIndicator: photoData.page_info.end_cursor || null,
-      })
-    }
-  }
-
-  const showNextList = (forward: boolean): void => {
-    const countShowedPhoto: number = (chunkNumber + 1) * MAX_COUNT_LIST_PHOTOS
-
-    if (!photoList) {
-      return
-    }
-
-    if (forward && nextChunksIndicator) {
-      if (photoList.length - countShowedPhoto <= MAX_COUNT_LIST_PHOTOS) {
-        getMorePhoto()
-      }
-
-      changeChunkNumber(chunkNumber + 1)
-    } else if (forward && !nextChunksIndicator) {
-      if (countShowedPhoto < photoList.length) {
-        changeChunkNumber(chunkNumber + 1)
-      }
-    } else if (!forward && chunkNumber) {
-      changeChunkNumber(chunkNumber - 1)
-    }
-  }
-
   return (
     <View style={styles.container}>
       <Text style={styles.headline}>Photo List</Text>
       {photoList ? (
         <PhotoList
-          photoList={photoList.slice(
-            chunkNumber * MAX_COUNT_LIST_PHOTOS,
-            (chunkNumber + 1) * MAX_COUNT_LIST_PHOTOS
-          )}
+          photoList={photoList}
           selectPhoto={selectPhoto}
-          showNextList={showNextList}
         />
       ) : (
         <ActivityIndicator color='#3EE7AD' size='large' />

@@ -29,7 +29,4 @@ export const PHOTO_ITEMS_COUNT_COLUMN = {
 
 export const MAX_COUNT_LIST_PHOTOS = 12
 
-export const GESTURE_CONFIG = {
-  velocityThreshold: 0.3,
-  directionalOffsetThreshold: 80,
-}
+export const MAX_PHOTO_NUMBER = 5000

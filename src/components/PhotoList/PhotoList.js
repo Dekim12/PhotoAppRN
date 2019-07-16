@@ -1,76 +1,53 @@
 // @flow
 
-import React, { type Node, useCallback, } from 'react'
-import { View, Image, } from 'react-native'
-import GestureRecognizer from 'react-native-swipe-gestures'
+import React, { type Node, } from 'react'
+import { Animated, type AnimatedValue, } from 'react-native'
 import uuidv4 from 'uuid/v4'
 import { type PhotoIdentifier, } from '@react-native-community/cameraroll'
 
-import { TouchableButton, } from '../index'
-import { useDimensions, } from '../../utils/hooks'
-import { defineImageSizes, } from '../../utils'
-import { GESTURE_CONFIG, } from '../../constants'
-import styles from './style'
-
-import {
-  type PhotoSizes,
-  type PhotoOrientationSizes,
-  type PhotoDataType,
-} from '../../types'
+import { PhotoListChunk, } from '../index'
+import { MAX_COUNT_LIST_PHOTOS, } from '../../constants'
+import { type PhotoDataType, } from '../../types'
 
 type Props = {
   photoList: Array<PhotoIdentifier>,
   selectPhoto: (data: PhotoDataType) => void,
-  showNextList: (forward: boolean) => void
 }
 
-type VoidFunction = () => void
+const PhotoList = ({ photoList, selectPhoto, }: Props) => {
+  const xOffset: AnimatedValue = new Animated.Value(0)
 
-const PhotoList = ({ photoList, selectPhoto, showNextList, }: Props) => {
-  const isHorizontal: boolean = useDimensions()
-  const photoSizes: PhotoSizes = defineImageSizes()
+  const photoChunks: Array<Array<PhotoIdentifier>> = []
 
-  const generateItems = (list: Array<PhotoIdentifier>): Array<Node> => {
-    const currentSizeObj: PhotoOrientationSizes = isHorizontal
-      ? photoSizes.horizontal
-      : photoSizes.vertical
-
-    return list.map(({ node: { image, }, }) => {
-      const showCurrentPhoto: VoidFunction = useCallback(() => {
-        selectPhoto(image)
-      }, [image])
-
-      return (
-        <TouchableButton
-          key={uuidv4()}
-          style={styles.photoItem}
-          onPress={showCurrentPhoto}
-        >
-          <Image
-            style={{
-              width: currentSizeObj.photoWidth,
-              height: currentSizeObj.photoHeight,
-            }}
-            source={{ uri: image.uri, }}
-          />
-        </TouchableButton>
-      )
-    })
+  while (photoList.length > MAX_COUNT_LIST_PHOTOS) {
+    photoChunks.push(photoList.splice(0, 12))
   }
+  photoChunks.push(photoList)
 
-  const onSwipe = ({ dx, }): void => {
-    showNextList(dx < 0)
-  }
+  const generateChunks = (chunksList: Array<Array<PhotoIdentifier>>): Array<Node> => chunksList.map(
+    (chunk: Array<PhotoIdentifier>, index: number) => (
+      <PhotoListChunk
+        photoList={chunk}
+        xOffset={xOffset}
+        chunkIndex={index}
+        selectPhoto={selectPhoto}
+        key={uuidv4()}
+      />
+    )
+  )
 
   return (
-    <GestureRecognizer
-      onSwipeLeft={onSwipe}
-      onSwipeRight={onSwipe}
-      config={GESTURE_CONFIG}
-      style={styles.gestureContainer}
+    <Animated.ScrollView
+      scrollEventThrottle={16}
+      onScroll={Animated.event(
+        [{ nativeEvent: { contentOffset: { x: xOffset, }, }, }],
+        { useNativeDriver: true, }
+      )}
+      horizontal
+      pagingEnabled
     >
-      <View style={styles.container}>{generateItems(photoList)}</View>
-    </GestureRecognizer>
+      {generateChunks(photoChunks)}
+    </Animated.ScrollView>
   )
 }
 
