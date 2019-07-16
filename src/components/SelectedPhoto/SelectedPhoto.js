@@ -5,6 +5,7 @@ import { View, Image, } from 'react-native'
 
 import { TouchableButton, Icon, } from '../index'
 import { useBackHandler, useDimensions, } from '../../utils/hooks'
+import { RESIZE_MODE, } from '../../constants'
 import styles from './style'
 
 import { type PhotoDataType, } from '../../types'
@@ -26,10 +27,10 @@ const SelectedPhoto = ({ photoInfo, closeSelectedPhoto, }: Props) => {
 
   const defineResizeMode = (): string => {
     if (photoInfo.width < photoInfo.height) {
-      return isHorizontal ? 'center' : 'cover'
+      return isHorizontal ? RESIZE_MODE.center : RESIZE_MODE.cover
     }
 
-    return isHorizontal ? 'cover' : 'center'
+    return isHorizontal ? RESIZE_MODE.cover : RESIZE_MODE.center
   }
 
   return (

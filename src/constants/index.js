@@ -5,7 +5,11 @@ export const ORIENTATION_TYPES = {
   upSideDown: 'PORTRAIT-UPSIDEDOWN',
 }
 
-export const RESIZE_MODE = { cover: 'cover', contain: 'contain', }
+export const RESIZE_MODE = {
+  cover: 'cover',
+  contain: 'contain',
+  center: 'center',
+}
 
 export const SUMMARY_ELEMENTS_WIDTH = {
   vertical: 12,

@@ -20,18 +20,6 @@ type Props = {
   toggleCamera: () => void
 }
 
-type State = {
-  currentBottomBarStyle: ?ViewStyleProp,
-  currentCameraBtnStyle: ?ViewStyleProp,
-  currentBackBtnStyle: ?ViewStyleProp
-}
-
-const INITIAL_BAR_STATE = {
-  currentBottomBarStyle: null,
-  currentCameraBtnStyle: null,
-  currentBackBtnStyle: null,
-}
-
 const ControlBar = ({
   flashMode,
   takePicture,
@@ -43,44 +31,32 @@ const ControlBar = ({
   savePicture,
   toggleCamera,
 }: Props) => {
-  const [
-    { currentBottomBarStyle, currentCameraBtnStyle, currentBackBtnStyle, },
-    setBarState
-  ] = useState(INITIAL_BAR_STATE);
-  ({
-    currentBottomBarStyle,
-    currentCameraBtnStyle,
-    currentBackBtnStyle,
-  }: State)
+  const [currentBackBtnStyle, setBarState] = useState(null);
+  (currentBackBtnStyle: ?ViewStyleProp)
+
+  const [rotationDegree, changeRotationDegree] = useState(0);
+  (rotationDegree: number)
 
   const onOrientationDidChange = (orientation: string): void => {
     switch (orientation) {
       case ORIENTATION_TYPES.landscapeR:
-        setBarState({
-          currentBottomBarStyle: styles.orientationRight,
-          currentCameraBtnStyle: styles.cameraBtnRight,
-          currentBackBtnStyle: styles.backBtnRight,
-        })
+        setBarState(styles.backBtnRight)
+        changeRotationDegree(-90)
         break
       case ORIENTATION_TYPES.landscapeL:
-        setBarState({
-          currentBottomBarStyle: styles.orientationLeft,
-          currentCameraBtnStyle: styles.cameraBtnLeft,
-          currentBackBtnStyle: styles.backBtnDefault,
-        })
+        setBarState(styles.backBtnLeft)
+        changeRotationDegree(90)
         break
       default:
-        setBarState({
-          currentBottomBarStyle: styles.orientationPortrait,
-          currentCameraBtnStyle: styles.cameraBtnPortrait,
-          currentBackBtnStyle: styles.backBtnDefault,
-        })
+        setBarState(styles.backBtnPortrait)
+        changeRotationDegree(0)
     }
   }
 
   useEffect(() => {
     Orientation.getDeviceOrientation(onOrientationDidChange)
     Orientation.addDeviceOrientationListener(onOrientationDidChange)
+    Orientation.lockToPortrait()
 
     return () => Orientation.removeDeviceOrientationListener(onOrientationDidChange)
   }, [])
@@ -97,10 +73,6 @@ const ControlBar = ({
     return <ActivityIndicator color='#3EE7AD' size='large' />
   }
 
-  if (!currentCameraBtnStyle && !currentBottomBarStyle) {
-    return null
-  }
-
   return (
     <View style={styles.container}>
       <TouchableButton
@@ -109,23 +81,32 @@ const ControlBar = ({
       >
         <Icon name='arrow-left' />
       </TouchableButton>
-      <View style={[styles.bottomBar, currentBottomBarStyle]}>
-        <TouchableButton style={styles.btnIcons} onPress={toggleFlashMode}>
+      <View style={styles.bottomBar}>
+        <TouchableButton
+          style={[styles.btnIcons, { rotation: rotationDegree, }]}
+          onPress={toggleFlashMode}
+        >
           <Icon name='bolt' color={flashMode ? '#3EE7AD' : '#e6e5e6'} />
         </TouchableButton>
         <TouchableButton
-          style={[styles.cameraBtn, currentCameraBtnStyle]}
+          style={[styles.cameraBtn, { rotation: rotationDegree, }]}
           disabled={!isCameraReady}
           onPress={isImage ? savePicture : takePicture}
         >
           {defineMiddleBtn()}
         </TouchableButton>
         {isImage ? (
-          <TouchableButton style={styles.btnIcons} onPress={resetPhoto}>
+          <TouchableButton
+            style={[styles.btnIcons, { rotation: rotationDegree, }]}
+            onPress={resetPhoto}
+          >
             <Icon name='redo-alt' />
           </TouchableButton>
         ) : (
-          <TouchableButton style={styles.btnIcons} onPress={toggleType}>
+          <TouchableButton
+            style={[styles.btnIcons, { rotation: rotationDegree, }]}
+            onPress={toggleType}
+          >
             <Icon name='sync-alt' />
           </TouchableButton>
         )}

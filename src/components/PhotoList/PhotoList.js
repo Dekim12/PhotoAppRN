@@ -1,6 +1,6 @@
 // @flow
 
-import React, { type Node, useCallback, } from 'react'
+import React, { type Node, } from 'react'
 import { View, Image, } from 'react-native'
 import GestureRecognizer from 'react-native-swipe-gestures'
 import uuidv4 from 'uuid/v4'
@@ -36,9 +36,7 @@ const PhotoList = ({ photoList, selectPhoto, showNextList, }: Props) => {
       : photoSizes.vertical
 
     return list.map(({ node: { image, }, }) => {
-      const showCurrentPhoto: VoidFunction = useCallback(() => {
-        selectPhoto(image)
-      }, [image])
+      const showCurrentPhoto: VoidFunction = () => selectPhoto(image)
 
       return (
         <TouchableButton
@@ -68,6 +66,7 @@ const PhotoList = ({ photoList, selectPhoto, showNextList, }: Props) => {
       onSwipeRight={onSwipe}
       config={GESTURE_CONFIG}
       style={styles.gestureContainer}
+      rr
     >
       <View style={styles.container}>{generateItems(photoList)}</View>
     </GestureRecognizer>

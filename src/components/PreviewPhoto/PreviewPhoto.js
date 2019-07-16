@@ -4,7 +4,7 @@ import React, { useState, } from 'react'
 import { Image, } from 'react-native'
 
 import { RESIZE_MODE, } from '../../constants'
-import { useDimensions, } from '../../utils/hooks'
+import { useDimensionsWithCallback, } from '../../utils/hooks'
 import styles from './style'
 
 import type { PhotoType, } from '../../types'
@@ -26,7 +26,7 @@ const PreviewPhoto = ({ imageData, }: Props) => {
     setPhotoResizeMode(newMode)
   }
 
-  useDimensions(setResizeImageMode)
+  useDimensionsWithCallback(setResizeImageMode)
 
   return (
     <Image

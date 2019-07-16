@@ -94,23 +94,34 @@ const MainPage = ({ toggleCamera, }: Props) => {
     }
   }
 
-  const showNextList = (forward: boolean): void => {
-    const countShowedPhoto: number = (chunkNumber + 1) * MAX_COUNT_LIST_PHOTOS
-
+  const showPhotoOrLoad = (showeredPhoto) => {
     if (!photoList) {
       return
     }
 
-    if (forward && nextChunksIndicator) {
-      if (photoList.length - countShowedPhoto <= MAX_COUNT_LIST_PHOTOS) {
-        getMorePhoto()
-      }
+    if (photoList.length - showeredPhoto <= MAX_COUNT_LIST_PHOTOS) {
+      getMorePhoto()
+    }
+    changeChunkNumber(chunkNumber + 1)
+  }
 
+  const showPhotoOrSkip = (showeredPhoto) => {
+    if (!photoList) {
+      return
+    }
+
+    if (showeredPhoto < photoList.length) {
       changeChunkNumber(chunkNumber + 1)
+    }
+  }
+
+  const showNextList = (forward: boolean): void => {
+    const countShowedPhoto: number = (chunkNumber + 1) * MAX_COUNT_LIST_PHOTOS
+
+    if (forward && nextChunksIndicator) {
+      showPhotoOrLoad(countShowedPhoto)
     } else if (forward && !nextChunksIndicator) {
-      if (countShowedPhoto < photoList.length) {
-        changeChunkNumber(chunkNumber + 1)
-      }
+      showPhotoOrSkip(countShowedPhoto)
     } else if (!forward && chunkNumber) {
       changeChunkNumber(chunkNumber - 1)
     }

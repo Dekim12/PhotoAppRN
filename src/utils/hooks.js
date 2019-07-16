@@ -15,17 +15,17 @@ export const useBackHandler = (
   })
 }
 
-export const useDimensions = (callback?: () => void): boolean => {
-  if (callback) {
-    useEffect(() => {
-      Dimensions.addEventListener('change', callback)
+export const useDimensionsWithCallback = (callback: () => void): void => {
+  useEffect(() => {
+    Dimensions.addEventListener('change', callback)
 
-      return () => Dimensions.removeEventListener('change', callback)
-    })
+    return () => Dimensions.removeEventListener('change', callback)
+  })
+}
 
-    return false
-  }
-  const [isHorizontal, setOrientation] = useState(isHorizontalOrientation());
+export const useDimensions = (): boolean => {
+  const horizontalOrientation = isHorizontalOrientation()
+  const [isHorizontal, setOrientation] = useState(horizontalOrientation);
   (isHorizontal: boolean)
 
   const orientationHaveBeenChanged = (): void => setOrientation(!isHorizontal)
