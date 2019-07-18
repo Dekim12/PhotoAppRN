@@ -2,6 +2,7 @@ import { StyleSheet, } from 'react-native'
 
 const styles = StyleSheet.create({
   container: {
+    alignSelf:'center',
     position: 'absolute',
     width: '100%',
     height: '100%',
@@ -9,8 +10,6 @@ const styles = StyleSheet.create({
     marginBottom: 3,
     marginRight: 3,
     backgroundColor: '#000000',
-    borderWidth: 3,
-    borderColor: '#3EE7AD', 
   },
   selectedPhotoStyle: {    
     width: '100%',

@@ -1,7 +1,7 @@
 // @flow
 
 import React, { useEffect, useState, } from 'react'
-import { Text, View, ActivityIndicator, PermissionsAndroid, } from 'react-native'
+import { Text, View, ActivityIndicator, PermissionsAndroid, Animated, } from 'react-native'
 import CameraRoll, {
   type GetPhotosParams,
   type PhotoIdentifiersPage,
@@ -138,6 +138,8 @@ const MainPage = ({ toggleCamera, }: Props) => {
           )}
           selectPhoto={selectPhoto}
           showNextList={showNextList}
+          isLastChunk={(chunkNumber + 1) * MAX_COUNT_LIST_PHOTOS >= photoList.length && !nextChunksIndicator}
+          isFirstChunk={!!chunkNumber}
         />
       ) : (
         <ActivityIndicator color='#3EE7AD' size='large' />
@@ -149,6 +151,7 @@ const MainPage = ({ toggleCamera, }: Props) => {
         <SelectedPhoto
           photoInfo={selectedPhotoData}
           closeSelectedPhoto={closeSelectedPhoto}
+          scaleValue={new Animated.Value(0)}
         />
       )}
     </View>

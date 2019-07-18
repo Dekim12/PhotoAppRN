@@ -4,6 +4,7 @@ import React, { useState, } from 'react'
 import { View, PermissionsAndroid, } from 'react-native'
 import { RNCamera, } from 'react-native-camera'
 import CameraRoll from '@react-native-community/cameraroll'
+import Orientation from 'react-native-orientation-locker'
 import RNFS from 'react-native-fs'
 
 import { ControlBar, PreviewPhoto, } from '../index'
@@ -64,6 +65,7 @@ const CameraPage = ({ toggleCamera, }: Props) => {
       await removePhotoFromCache()
     }
     toggleCamera()
+    Orientation.unlockAllOrientations()
 
     return true
   }

@@ -1,7 +1,7 @@
 // @flow
 
 import React, { useEffect, useState, type Node, } from 'react'
-import { View, ActivityIndicator, type ViewStyleProp, } from 'react-native'
+import { View, ActivityIndicator, Animated, type ViewStyleProp, } from 'react-native'
 import Orientation from 'react-native-orientation-locker'
 
 import { Icon, TouchableButton, } from '../index'
@@ -37,6 +37,8 @@ const ControlBar = ({
   const [rotationDegree, changeRotationDegree] = useState(0);
   (rotationDegree: number)
 
+  const scaleValue = new Animated.Value(1)
+
   const onOrientationDidChange = (orientation: string): void => {
     switch (orientation) {
       case ORIENTATION_TYPES.landscapeR:
@@ -61,13 +63,51 @@ const ControlBar = ({
     return () => Orientation.removeDeviceOrientationListener(onOrientationDidChange)
   }, [])
 
-  const defineMiddleBtn = (): Node => {
+  const increaseAnimation = () => {
+    scaleValue.setValue(0)
+
+    Animated.spring(
+      scaleValue, 
+      {
+        toValue: 1,        
+        duration: 500,    
+        friction: 3,
+        tension: 50,      
+        useNativeDriver: true, 
+      }
+    ).start()
+  }
+
+  const decreaseAnimation = () => {
+    const callbackAction = isImage ? savePicture : takePicture
+
+    Animated.timing(
+      scaleValue, 
+      {
+        toValue: 0,        
+        duration: 300,    
+        useNativeDriver: true,       
+      }
+    ).start(callbackAction)
+    
+  }
+
+  const defineMiddleBtn = (): Node => {   
+    const iconTransformStyle = { transform: [{ scale: scaleValue, }], }
+    increaseAnimation()
+
     if (isImage) {
-      return <Icon name='save' size={43} />
+      return (<Animated.View style={iconTransformStyle} >
+        <Icon name='save' size={43} />
+              </Animated.View>)
     }
 
     if (isCameraReady) {
-      return <Icon name='camera' size={43} />
+      return (
+        <Animated.View style={iconTransformStyle} >
+          <Icon name='camera' size={43} />
+        </Animated.View>
+      )
     }
 
     return <ActivityIndicator color='#3EE7AD' size='large' />
@@ -91,7 +131,7 @@ const ControlBar = ({
         <TouchableButton
           style={[styles.cameraBtn, { rotation: rotationDegree, }]}
           disabled={!isCameraReady}
-          onPress={isImage ? savePicture : takePicture}
+          onPress={decreaseAnimation}
         >
           {defineMiddleBtn()}
         </TouchableButton>
