@@ -26,6 +26,8 @@ type Props = {
 
 type ChunkInfo = { chunkNumber: number, previousChunkNumber: number }
 
+type SelectedPhotoInfo = { selectedPhotoData: ?PhotoDataType, isPhotoSelected: boolean, }
+
 type InitialPhotoState = {
   photoList: ?Array<PhotoIdentifier>,
   nextChunksIndicator: ?string
@@ -45,8 +47,8 @@ const MainPage = ({ toggleCamera, }: Props) => {
   const [{ selectedPhotoData, isPhotoSelected, }, setSelectedPhoto] = useState({
     selectedPhotoData: null,
     isPhotoSelected: false,
-  })
-  // (selectedPhotoData: ?PhotoDataType)
+  });
+  ({ selectedPhotoData, isPhotoSelected, }: SelectedPhotoInfo)
 
   const [{ chunkNumber, previousNumber, }, changeChunkInfo] = useState({
     chunkNumber: 0,
@@ -141,6 +143,12 @@ const MainPage = ({ toggleCamera, }: Props) => {
 
   const showNextList = (forward: boolean): void => {
     const countShowedPhoto: number = (chunkNumber + 1) * MAX_COUNT_LIST_PHOTOS
+
+    if(isPhotoSelected) {
+      setSelectedPhoto(
+        { selectedPhotoData: null, isPhotoSelected: false, }
+      )
+    }
 
     if (forward && nextChunksIndicator) {
       displayPhotoOrLoad(countShowedPhoto)
