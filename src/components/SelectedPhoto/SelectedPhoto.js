@@ -38,17 +38,18 @@ const SelectedPhoto = ({
     return isHorizontal ? RESIZE_MODE.cover : RESIZE_MODE.center
   }
 
-  Animated.spring(scaleValue, {
+  Animated.timing(scaleValue, {
     toValue: 1,
-    duration: 1000,
-    friction: 4,
-    tension: 10,
+    duration: 300,
     useNativeDriver: true,
   }).start()
 
   return (
     <Animated.View
-      style={[styles.container, { transform: [{ scale: scaleValue, }], }]}
+      style={[
+        styles.container,
+        { transform: [{ scale: scaleValue, }], opacity: scaleValue, }
+      ]}
     >
       <Image
         style={styles.selectedPhotoStyle}

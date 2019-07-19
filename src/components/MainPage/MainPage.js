@@ -42,8 +42,11 @@ const MainPage = ({ toggleCamera, }: Props) => {
   );
   ({ photoList, nextChunksIndicator, }: InitialPhotoState)
 
-  const [selectedPhotoData, setSelectedPhoto] = useState(null);
-  (selectedPhotoData: ?PhotoDataType)
+  const [{ selectedPhotoData, isPhotoSelected, }, setSelectedPhoto] = useState({
+    selectedPhotoData: null,
+    isPhotoSelected: false,
+  })
+  // (selectedPhotoData: ?PhotoDataType)
 
   const [{ chunkNumber, previousNumber, }, changeChunkInfo] = useState({
     chunkNumber: 0,
@@ -90,9 +93,13 @@ const MainPage = ({ toggleCamera, }: Props) => {
     setStartData()
   }, [])
 
-  const selectPhoto = (data: PhotoDataType): void => setSelectedPhoto(data)
+  const selectPhoto = (data: PhotoDataType): void => setSelectedPhoto(
+    { selectedPhotoData: data, isPhotoSelected: true, }
+  )
 
-  const closeSelectedPhoto = (): void => setSelectedPhoto(null)
+  const closeSelectedPhoto = (): void => setSelectedPhoto(
+    { selectedPhotoData: null, isPhotoSelected: true, }
+  )
 
   const getMorePhoto = async (): Promise<void> => {
     const photoData: PhotoIdentifiersPage = await getPhoto()
@@ -164,6 +171,7 @@ const MainPage = ({ toggleCamera, }: Props) => {
           }
           chunkNumber={chunkNumber}
           previousChunkNumber={previousNumber}
+          selectedPhoto={isPhotoSelected}
         />
       ) : (
         <ActivityIndicator color='#3EE7AD' size='large' />

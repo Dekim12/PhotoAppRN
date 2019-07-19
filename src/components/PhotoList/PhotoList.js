@@ -36,6 +36,7 @@ const PhotoList = ({
   isLastChunk,
   chunkNumber,
   previousChunkNumber,
+  selectedPhoto,
 }: Props) => {
   const isHorizontal: boolean = useDimensions()
   const photoSizes: PhotoSizes = defineImageSizes()
@@ -92,7 +93,7 @@ const PhotoList = ({
     defineAnimation(dx < 0)
   }
 
-  if (previousChunkNumber !== chunkNumber) {
+  if (previousChunkNumber !== chunkNumber && !selectedPhoto) {
     listСoordinate.setValue(
       previousChunkNumber > chunkNumber ? -windowWidth : windowWidth
     )
