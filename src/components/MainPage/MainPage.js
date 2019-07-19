@@ -1,7 +1,13 @@
 // @flow
 
 import React, { useEffect, useState, } from 'react'
-import { Text, View, ActivityIndicator, PermissionsAndroid, Animated, } from 'react-native'
+import {
+  Text,
+  View,
+  ActivityIndicator,
+  PermissionsAndroid,
+  Animated,
+} from 'react-native'
 import CameraRoll, {
   type GetPhotosParams,
   type PhotoIdentifiersPage,
@@ -17,6 +23,8 @@ import { type PhotoDataType, } from '../../types'
 type Props = {
   toggleCamera: () => void
 }
+
+type ChunkInfo = { chunkNumber: number, previousChunkNumber: number }
 
 type InitialPhotoState = {
   photoList: ?Array<PhotoIdentifier>,
@@ -37,8 +45,11 @@ const MainPage = ({ toggleCamera, }: Props) => {
   const [selectedPhotoData, setSelectedPhoto] = useState(null);
   (selectedPhotoData: ?PhotoDataType)
 
-  const [chunkNumber, changeChunkNumber] = useState(0);
-  (chunkNumber: number)
+  const [{ chunkNumber, previousNumber, }, changeChunkInfo] = useState({
+    chunkNumber: 0,
+    previousNumber: 0,
+  });
+  ({ chunkNumber, previousNumber, }: ChunkInfo)
 
   const checkAndroidPermission = async (): Promise<void> => {
     try {
@@ -53,7 +64,7 @@ const MainPage = ({ toggleCamera, }: Props) => {
 
   const getPhoto = async (): Promise<PhotoIdentifiersPage> => {
     const startParams: GetPhotosParams = {
-      first: MAX_COUNT_LIST_PHOTOS * 3,
+      first: MAX_COUNT_LIST_PHOTOS * 5,
       assetType: 'Photos',
     }
 
@@ -65,7 +76,7 @@ const MainPage = ({ toggleCamera, }: Props) => {
     return data
   }
 
-  const setStartData = async () => {
+  const setStartData = async (): Promise<void> => {
     checkAndroidPermission()
     const photoData: PhotoIdentifiersPage = await getPhoto()
 
@@ -94,24 +105,30 @@ const MainPage = ({ toggleCamera, }: Props) => {
     }
   }
 
-  const displayPhotoOrLoad = (showeredPhoto) => {
+  const displayPhotoOrLoad = (displayedPhoto: number): void => {
     if (!photoList) {
       return
     }
 
-    if (photoList.length - showeredPhoto <= MAX_COUNT_LIST_PHOTOS) {
+    if (photoList.length - displayedPhoto <= MAX_COUNT_LIST_PHOTOS) {
       getMorePhoto()
     }
-    changeChunkNumber(chunkNumber + 1)
+    changeChunkInfo({
+      chunkNumber: chunkNumber + 1,
+      previousNumber: chunkNumber,
+    })
   }
 
-  const displayPhotoOrSkip = (showeredPhoto) => {
+  const displayPhotoOrSkip = (displayedPhoto: number): void => {
     if (!photoList) {
       return
     }
 
-    if (showeredPhoto < photoList.length) {
-      changeChunkNumber(chunkNumber + 1)
+    if (displayedPhoto < photoList.length) {
+      changeChunkInfo({
+        chunkNumber: chunkNumber + 1,
+        previousNumber: chunkNumber,
+      })
     }
   }
 
@@ -122,8 +139,11 @@ const MainPage = ({ toggleCamera, }: Props) => {
       displayPhotoOrLoad(countShowedPhoto)
     } else if (forward && !nextChunksIndicator) {
       displayPhotoOrSkip(countShowedPhoto)
-    } else if (!forward && chunkNumber) {
-      changeChunkNumber(chunkNumber - 1)
+    } else if (!forward) {
+      changeChunkInfo({
+        chunkNumber: chunkNumber - 1,
+        previousNumber: chunkNumber,
+      })
     }
   }
 
@@ -138,8 +158,12 @@ const MainPage = ({ toggleCamera, }: Props) => {
           )}
           selectPhoto={selectPhoto}
           showNextList={showNextList}
-          isLastChunk={(chunkNumber + 1) * MAX_COUNT_LIST_PHOTOS >= photoList.length && !nextChunksIndicator}
-          isFirstChunk={!!chunkNumber}
+          isLastChunk={
+            (chunkNumber + 1) * MAX_COUNT_LIST_PHOTOS >= photoList.length &&
+            !nextChunksIndicator
+          }
+          chunkNumber={chunkNumber}
+          previousChunkNumber={previousNumber}
         />
       ) : (
         <ActivityIndicator color='#3EE7AD' size='large' />

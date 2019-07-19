@@ -1,7 +1,7 @@
 // @flow
 
 import React from 'react'
-import { View, Image, Animated, } from 'react-native'
+import { Image, Animated, type AnimatedValue, } from 'react-native'
 
 import { TouchableButton, Icon, } from '../index'
 import { useBackHandler, useDimensions, } from '../../utils/hooks'
@@ -13,10 +13,14 @@ import { type PhotoDataType, } from '../../types'
 type Props = {
   photoInfo: PhotoDataType,
   closeSelectedPhoto: () => void,
-  scaleValue: number,
+  scaleValue: AnimatedValue
 }
 
-const SelectedPhoto = ({ photoInfo, closeSelectedPhoto, scaleValue, }: Props) => {
+const SelectedPhoto = ({
+  photoInfo,
+  closeSelectedPhoto,
+  scaleValue,
+}: Props) => {
   const isHorizontal: boolean = useDimensions()
 
   const closePhotoByBackHandler = (): boolean => {
@@ -34,19 +38,18 @@ const SelectedPhoto = ({ photoInfo, closeSelectedPhoto, scaleValue, }: Props) =>
     return isHorizontal ? RESIZE_MODE.cover : RESIZE_MODE.center
   }
 
-  Animated.spring(
-    scaleValue, 
-    {
-      toValue: 1,        
-      duration: 1000,    
-      friction: 4,
-      tension: 10,      
-      useNativeDriver: true, 
-    }
-  ).start()
+  Animated.spring(scaleValue, {
+    toValue: 1,
+    duration: 1000,
+    friction: 4,
+    tension: 10,
+    useNativeDriver: true,
+  }).start()
 
   return (
-    <Animated.View style={[styles.container, { transform: [{ scale: scaleValue, }], }]}>
+    <Animated.View
+      style={[styles.container, { transform: [{ scale: scaleValue, }], }]}
+    >
       <Image
         style={styles.selectedPhotoStyle}
         source={{ uri: photoInfo.uri, }}

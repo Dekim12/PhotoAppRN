@@ -1,7 +1,7 @@
 // @flow
 
 import React, { type Node, } from 'react'
-import { View, Image, Animated, Dimensions, } from 'react-native'
+import { Image, Animated, Dimensions, type AnimatedValue, } from 'react-native'
 import GestureRecognizer from 'react-native-swipe-gestures'
 import uuidv4 from 'uuid/v4'
 import { type PhotoIdentifier, } from '@react-native-community/cameraroll'
@@ -23,15 +23,24 @@ type Props = {
   selectPhoto: (data: PhotoDataType) => void,
   showNextList: (forward: boolean) => void,
   isLastChunk: boolean,
-  isFirstChunk: boolean,
+  chunkNumber: number,
+  previousChunkNumber: number
 }
 
 type VoidFunction = () => void
 
-const PhotoList = ({ photoList, selectPhoto, showNextList, isLastChunk, isFirstChunk, }: Props) => {
+const PhotoList = ({
+  photoList,
+  selectPhoto,
+  showNextList,
+  isLastChunk,
+  chunkNumber,
+  previousChunkNumber,
+}: Props) => {
   const isHorizontal: boolean = useDimensions()
   const photoSizes: PhotoSizes = defineImageSizes()
-  const windowWidth = Dimensions.get('window').width
+  const listСoordinate: AnimatedValue = new Animated.Value(0)
+  const windowWidth: number = Dimensions.get('window').width
 
   const generateItems = (list: Array<PhotoIdentifier>): Array<Node> => {
     const currentSizeObj: PhotoOrientationSizes = isHorizontal
@@ -39,7 +48,7 @@ const PhotoList = ({ photoList, selectPhoto, showNextList, isLastChunk, isFirstC
       : photoSizes.vertical
 
     return list.map(({ node: { image, }, }) => {
-      const showCurrentPhoto: VoidFunction = () => selectPhoto(image)     
+      const showCurrentPhoto: VoidFunction = () => selectPhoto(image)
 
       return (
         <TouchableButton
@@ -59,50 +68,43 @@ const PhotoList = ({ photoList, selectPhoto, showNextList, isLastChunk, isFirstC
     })
   }
 
-  // const swipeAnimation = () => {
-  //   Animated.timing(
-  //     listСoordinate, 
-  //     {
-  //       toValue: -150,        
-  //       duration: 500,       
-  //       useNativeDriver: true, 
-  //     }
-  //   ).start()
-  // }
+  const swipeAnimation = (offset: number, callback: () => void): void => {
+    Animated.timing(listСoordinate, {
+      toValue: offset,
+      duration: 400,
+      useNativeDriver: true,
+    }).start(callback)
+  }
+
+  const defineAnimation = (isRightSwipe: boolean): void => {
+    if (
+      (isRightSwipe && !isLastChunk) ||
+      (!isRightSwipe && Boolean(chunkNumber))
+    ) {
+      const offsetValue = isRightSwipe ? -windowWidth : windowWidth
+      const afterSwipeCallback = () => showNextList(isRightSwipe)
+
+      swipeAnimation(offsetValue, afterSwipeCallback)
+    }
+  }
 
   const onSwipe = ({ dx, }): void => {
-    showNextList(dx < 0)
+    defineAnimation(dx < 0)
   }
-  
-  // const listСoordinate = new Animated.Value()
 
-  // const onSwipe = ({ dx, }): void => {
-  //   Animated.timing(
-  //     listСoordinate, 
-  //     {
-  //       toValue: dx > 0 ? windowWidth : -windowWidth,        
-  //       duration: 300,       
-  //       useNativeDriver: true, 
-  //     }
-  //   ).start(() => showNextList(dx < 0))
-  // }
+  if (previousChunkNumber !== chunkNumber) {
+    listСoordinate.setValue(
+      previousChunkNumber > chunkNumber ? -windowWidth : windowWidth
+    )
 
-  // const startAnimation = () => {
-  //   listСoordinate.setValue(Dimensions.get('window').width)
-
-  //   Animated.spring(
-  //     listСoordinate, 
-  //     {
-  //       toValue: 1,        
-  //       duration: 600,    
-  //       friction: 4,
-  //       tension: 30,      
-  //       useNativeDriver: true, 
-  //     }
-  //   ).start()
-  // }
-
-  // startAnimation()
+    Animated.spring(listСoordinate, {
+      toValue: 1,
+      duration: 600,
+      friction: 4,
+      tension: 30,
+      useNativeDriver: true,
+    }).start()
+  }
 
   return (
     <GestureRecognizer
@@ -111,8 +113,12 @@ const PhotoList = ({ photoList, selectPhoto, showNextList, isLastChunk, isFirstC
       config={GESTURE_CONFIG}
       style={styles.gestureContainer}
     >
-      {/* <Animated.View style={[styles.container, { transform: [{ translateX: listСoordinate, }], }]} >*/}
-      <Animated.View style={[styles.container]}>
+      <Animated.View
+        style={[
+          styles.container,
+          { transform: [{ translateX: listСoordinate, }], }
+        ]}
+      >
         {generateItems(photoList)}
       </Animated.View>
     </GestureRecognizer>
