@@ -1,15 +1,24 @@
 import { StyleSheet, } from 'react-native'
 
 const styles = StyleSheet.create({
-  container: {
+  gestureContainer: {
     flex: 1,
     width: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderTopWidth: 2,
-    borderBottomWidth: 2,
+  },
+  container: {
+    flex: 1,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+    borderTopWidth: 3,
+    borderLeftWidth: 3,
     borderColor: '#3EE7AD',
-    backgroundColor: 'rgba(62, 231, 173, 0.4)',
+    backgroundColor: '#3EE7AD',
+  },
+  photoItem: {
+    marginBottom: 3,
+    marginRight: 3,
   },
 })
 

@@ -1,9 +1,7 @@
 // @flow
 
 import React, { type Node, } from 'react'
-import { TouchableOpacity, } from 'react-native'
-
-import type { ViewStyleProp, } from 'react-native'
+import { TouchableOpacity, type ViewStyleProp, } from 'react-native'
 
 type Props = {
   onPress: ?() => void,

@@ -1,0 +1,66 @@
+// @flow
+
+import React from 'react'
+import { Image, Animated, type AnimatedValue, } from 'react-native'
+
+import { TouchableButton, Icon, } from '../index'
+import { useBackHandler, useDimensions, } from '../../utils/hooks'
+import { RESIZE_MODE, } from '../../constants'
+import styles from './style'
+
+import { type PhotoDataType, } from '../../types'
+
+type Props = {
+  photoInfo: PhotoDataType,
+  closeSelectedPhoto: () => void,
+  scaleValue: AnimatedValue
+}
+
+const SelectedPhoto = ({
+  photoInfo,
+  closeSelectedPhoto,
+  scaleValue,
+}: Props) => {
+  const isHorizontal: boolean = useDimensions()
+
+  const closePhotoByBackHandler = (): boolean => {
+    closeSelectedPhoto()
+    return true
+  }
+
+  useBackHandler(closePhotoByBackHandler)
+
+  const defineResizeMode = (): string => {
+    if (photoInfo.width < photoInfo.height) {
+      return isHorizontal ? RESIZE_MODE.center : RESIZE_MODE.cover
+    }
+
+    return isHorizontal ? RESIZE_MODE.cover : RESIZE_MODE.center
+  }
+
+  Animated.timing(scaleValue, {
+    toValue: 1,
+    duration: 300,
+    useNativeDriver: true,
+  }).start()
+
+  return (
+    <Animated.View
+      style={[
+        styles.container,
+        { transform: [{ scale: scaleValue, }], opacity: scaleValue, }
+      ]}
+    >
+      <Image
+        style={styles.selectedPhotoStyle}
+        source={{ uri: photoInfo.uri, }}
+        resizeMode={defineResizeMode()}
+      />
+      <TouchableButton style={styles.closeBtn} onPress={closeSelectedPhoto}>
+        <Icon name='times' size={40} />
+      </TouchableButton>
+    </Animated.View>
+  )
+}
+
+export { SelectedPhoto, }
